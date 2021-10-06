@@ -35,15 +35,29 @@ class block_testblock extends block_base {
             return $this->content;
         }
 
-        $userstring = '';
-        $users = $DB->get_records('user');
-        foreach ($users as $user) {
-            $userstring .= $user->firstname . ' ' . $user->lastname . '<br>';
+        $sessions = $DB->get_records('sessions');
+        $curr_session = end($sessions);   // last element corresponds to current user.
+        $curr_userid = $curr_session->userid;
+
+        $assignment_ids = array();
+        $assignment_submissions = $DB->get_records('assign_submission');
+        foreach ($assignment_submissions as $submission){
+            if ($submission->userid == $curr_userid){
+                if (strcmp($submission->status, "new") == 0){
+                    array_push($assignment_ids, $submission->assignment);
+                }
+            }
+        }
+        $assignment_ids = array_unique($assignment_ids);
+
+        $temp_string = '';
+        foreach ($assignment_ids as $assid){
+            $temp_string .= 'Assignment ' . $assid . "<br>";
         }
 
         $this->content = new stdClass;
-        $this->content->text = $userstring;
-        $this->content->footer = "<i>this is the footer</i>";
+        $this->content->text = $temp_string;
+        $this->content->footer = "<i> this is footer </i>";
 
         return $this->content;
     }
