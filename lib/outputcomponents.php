@@ -1880,7 +1880,10 @@ class html_writer {
             $class = str_replace(']', '', $class);
             $attributes['class'] = $class;
         }
-        $attributes['class'] = 'select custom-select ' . $attributes['class']; // Add 'select' selector always.
+        $a= $attributes['id'];
+        $res = preg_replace("/[^a-zA-Z0-9]/", "", $a);
+        $attributes['class'] = 'select custom-select ' . $attributes['class'] . ' ' . $res; // Add 'select' selector always.
+        $attributes['style']='display: none;';
 
         $attributes['name'] = $name;
 
@@ -1901,6 +1904,86 @@ class html_writer {
         }
         return self::tag('select', $output, $attributes);
     }
+
+    public static function droplist(array $options, $name, $selected = '', $nothing = array('' => 'choosedots'), array $attributes = null) {
+        $attributes = (array)$attributes;
+        if (is_array($nothing)) {
+            foreach ($nothing as $k=>$v) {
+                if ($v === 'choose' or $v === 'choosedots') {
+                    $nothing[$k] = get_string('choosedots');
+                }
+            }
+            $options = $nothing + $options; // keep keys, do not override
+
+        } else if (is_string($nothing) and $nothing !== '') {
+            // BC
+            $options = array(''=>$nothing) + $options;
+        }
+
+        // we may accept more values if multiple attribute specified
+        $selected = (array)$selected;
+        foreach ($selected as $k=>$v) {
+            $selected[$k] = (string)$v;
+        }
+
+        if (!isset($attributes['id'])) {
+            $id = 'menu'.$name;
+            // name may contaion [], which would make an invalid id. e.g. numeric question type editing form, assignment quickgrading
+            $id = str_replace('[', '', $id);
+            $id = str_replace(']', '', $id);
+            $attributes['id'] = $id;
+        }
+
+        if (!isset($attributes['class'])) {
+            $class = 'menu'.$name;
+            // name may contaion [], which would make an invalid class. e.g. numeric question type editing form, assignment quickgrading
+            $class = str_replace('[', '', $class);
+            $class = str_replace(']', '', $class);
+            $attributes['class'] = $class;
+        }
+        $a= $attributes['id'];
+        $res = preg_replace("/[^a-zA-Z0-9]/", "", $a);
+        $attributes['class'] = 'btn-group matching ' . $attributes['class']; // Add 'select' selector always.
+        $attributes['class'] = $attributes['class'] .' '. $res;
+
+        if (!empty($attributes['disabled'])) {
+            $attributes['disabled'] = 'disabled';
+        } else {
+            unset($attributes['disabled']);
+        }
+
+        $output = '';
+        foreach ($options as $value=>$label) {
+            // if (is_array($label)) {
+            //     // ignore key, it just has to be unique
+            //     $output .= self::select_optgroup(key($label), current($label), $selected);
+            // } else {
+                $output .= self::droplist_option($label, $value, $selected);
+            // }$result .= html_writer::tag('td',
+            //         html_writer::label(get_string('answer', 'qtype_match', $i),
+            //                 'menu' . $qa->get_qt_field_name('sub' . $key), false,
+            //                 array('class' => 'accesshide')) .
+            //         html_writer::select($choices, $qa->get_qt_field_name('sub' . $key), $selected,
+            //                 array('0' => 'choose'), array('disabled' => $options->readonly, 'class' => 'custom-select ml-1')) .
+            //         ' ' . $feedbackimage, array('class' => $classes));
+        }
+        $output = self::tag('ul',$output,['class' => 'dropdown-menu']);
+        $result = self::tag('button',"Action",['class' =>"btn btn-default dropdown-toggle",'data-toggle'=>"dropdown", 'aria-haspopup'=>"true", 'aria-expanded'=>"false"]);
+        $output = $result.$output;
+        $output=self::tag('div',$output,$attributes);
+        return $output;
+    }
+    private static function droplist_option($label, $value, array $selected) {
+        $attributes = array();
+        $value = (string)$value;
+        if (in_array($value, $selected, true)) {
+            $attributes['selected'] = 'selected';
+        }
+        $attributes['value'] = $value;
+        $attributes['class'] = 'dropdown-item';
+        return self::tag('li', $label, $attributes);
+    }
+
 
     /**
      * Returns HTML to display a select box option.

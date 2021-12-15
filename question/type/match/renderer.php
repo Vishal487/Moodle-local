@@ -25,7 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-
 /**
  * Generates the output for matching questions.
  *
@@ -36,7 +35,9 @@ class qtype_match_renderer extends qtype_with_combined_feedback_renderer {
 
     public function formulation_and_controls(question_attempt $qa,
             question_display_options $options) {
-
+                global $PAGE;
+                global $CFG;
+                $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/question/type/match/amd/index.js'));            
         $question = $qa->get_question();
         $stemorder = $question->get_stem_order();
         $response = $qa->get_last_qt_data();
@@ -77,14 +78,26 @@ class qtype_match_renderer extends qtype_with_combined_feedback_renderer {
                 $feedbackimage = $this->feedback_image($fraction);
             }
 
+            // $result .= html_writer::tag('td',
+            //         html_writer::label(get_string('answer', 'qtype_match', $i),
+            //                 'menu' . $qa->get_qt_field_name('sub' . $key), false,
+            //                 array('class' => 'accesshide')) .
+            //         html_writer::select($choices, $qa->get_qt_field_name('sub' . $key), $selected,
+            //                 array('0' => 'choose'), array('disabled' => $options->readonly, 'class' => 'custom-select ml-1')) .
+            //         ' ' . $feedbackimage, array('class' => $classes)).
+            //         html_writer::droplist($choices, $qa->get_qt_field_name('sub' . $key), $selected,
+            //                 array('0' => 'choose'), array('disabled' => $options->readonly, 'class' => 'filter_mathjaxloader_equation')) .
+            //                 ' ' . $feedbackimage, array('class' => $classes));
             $result .= html_writer::tag('td',
                     html_writer::label(get_string('answer', 'qtype_match', $i),
                             'menu' . $qa->get_qt_field_name('sub' . $key), false,
                             array('class' => 'accesshide')) .
-                    html_writer::select($choices, $qa->get_qt_field_name('sub' . $key), $selected,
-                            array('0' => 'choose'), array('disabled' => $options->readonly, 'class' => 'custom-select ml-1')) .
-                    ' ' . $feedbackimage, array('class' => $classes));
-
+                        html_writer::droplist($choices, $qa->get_qt_field_name('sub' . $key), $selected,
+                            array('0' => 'choose'), array('disabled' => $options->readonly, 'class' => 'filter_mathjaxloader_equation')) .
+                            ' ' . $feedbackimage, array('class' => $classes));
+            $result.=html_writer::select($choices, $qa->get_qt_field_name('sub' . $key), $selected,
+                            array('0' => 'choose'), array('disabled' => $options->readonly, 'class' => 'custom-select ml-1'));
+        
             $result .= html_writer::end_tag('tr');
             $parity = 1 - $parity;
             $i++;
@@ -99,7 +112,7 @@ class qtype_match_renderer extends qtype_with_combined_feedback_renderer {
                     $question->get_validation_error($response),
                     array('class' => 'validationerror'));
         }
-
+        
         return $result;
     }
 
@@ -116,6 +129,9 @@ class qtype_match_renderer extends qtype_with_combined_feedback_renderer {
      */
     public function format_stem_text($qa, $stemid) {
         $question = $qa->get_question();
+        // echo '<script type="text/JavaScript"> 
+        //         console.log("'.$question->stems[$stemid].'");
+        //     </script>';
         return $question->format_text(
                     $question->stems[$stemid], $question->stemformat[$stemid],
                     $qa, 'qtype_match', 'subquestion', $stemid);
@@ -125,6 +141,11 @@ class qtype_match_renderer extends qtype_with_combined_feedback_renderer {
         $choices = array();
         foreach ($question->get_choice_order() as $key => $choiceid) {
             $choices[$key] = format_string($question->choices[$choiceid]);
+            // echo '<script type="text/JavaScript"> 
+            //     console.log("'.$choices[$key].'");
+            // </script>';
+            // $choices[$key] = $choices[$key].$choices[$key];
+
         }
         return $choices;
     }
