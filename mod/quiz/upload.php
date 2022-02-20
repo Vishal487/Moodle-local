@@ -22,15 +22,20 @@ else
     throw new Exception("no data");
 }
 
+$contextID = $_REQUEST['contextID'];
+/**
+ * TODO :: customize itemid
+ */
+
 // saving to database
 $fs = get_file_storage();
 
 // Prepare file record object
 $fileinfo = array(
-    'contextid' => 60, // ID of context
+    'contextid' => $contextID, // ID of context
     'component' => 'mod_mymodule',     // usually = table name
     'filearea' => 'myarea',     // usually = table name
-    'itemid' => 1,               // usually = ID of row in table
+    'itemid' => 5,               // usually = ID of row in table
     'filepath' => '/',           // any path beginning and ending in /
     'filename' => 'pannot.pdf'); // any filename
 

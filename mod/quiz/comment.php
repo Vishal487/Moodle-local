@@ -136,6 +136,7 @@ include "./myindex.html";
 
 ?>
 <script type="text/javascript">var filename = "<?= $filename ?>";</script>
+<script type="text/javascript">var contextID = "<?= $options->context->id ?>";</script>
 <script type="text/javascript" src="./myscript.js"></script>
 
 <div>

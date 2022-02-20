@@ -237,16 +237,17 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			var pdf = doc.output('blob');
 			var data = new FormData();
 			data.append("data", pdf);
-			// console.log(pdf);
+			console.log(contextID);
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function() {
 				if (this.readyState == 4 && this.status == 200) {
-					alert("file has been saved");
+					alert("file has been sent");
 				}else{
-					alert("not able to save file");
+					console.log(this.readyState, this.status);
+					alert("not able to send file");
 				}
 			}
-			xhr.open( 'post', 'upload.php', true ); //Post to php Script to save to server
+			xhr.open( 'post', 'upload.php?contextID='+contextID, true ); //Post to php Script to save to server
 			xhr.send(data);
 		}
 
