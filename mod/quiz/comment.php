@@ -113,7 +113,31 @@ echo $output->review_summary_table($summarydata, 0);
 echo '<form method="post" class="mform" id="manualgradingform" action="' .
         $CFG->wwwroot . '/mod/quiz/comment.php">';
 echo $attemptobj->render_question_for_commenting($slot);
+
+// var_dump($attemptobj);
+$qa = $attemptobj->get_question_attempt($slot);
+// var_dump($qa);
+$options = $attemptobj->get_display_options(true);
+// var_dump($options);
+$files = $qa->get_last_qt_files('attachments', $options->context->id);
+// var_dump($files);
+$fileurl = "";
+foreach ($files as $file) {
+    $out = $qa->get_response_file_url($file);
+    $url = (explode("?", $out))[0];
+    $fileurl = $url;
+}
+
+// var_dump($options->context->id);
+
+// $filename = "http://localhost/moodle/pluginfile.php/60/question/response_attachments/35/1/139/intro.pdf";
+$filename = $fileurl;
+include "./myindex.html";
+
 ?>
+<script type="text/javascript">var filename = "<?= $filename ?>";</script>
+<script type="text/javascript" src="./myscript.js"></script>
+
 <div>
     <input type="hidden" name="attempt" value="<?php echo $attemptobj->get_attemptid(); ?>" />
     <input type="hidden" name="slot" value="<?php echo $slot; ?>" />
