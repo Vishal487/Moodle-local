@@ -23,24 +23,46 @@ else
 }
 
 $contextID = $_REQUEST['contextID'];
-/**
- * TODO :: customize itemid
- */
+$attemptID = $_REQUEST['attemptID'];
+$filename = $_REQUEST['filename'];
 
-// saving to database
+$component = 'question';
+$filearea = 'response_attachments';
+$filepath = '/';
+$itemid = $attemptID;
+$temppath = "./test4.pdf";
+
 $fs = get_file_storage();
 
 // Prepare file record object
 $fileinfo = array(
     'contextid' => $contextID, // ID of context
-    'component' => 'mod_mymodule',     // usually = table name
-    'filearea' => 'myarea',     // usually = table name
-    'itemid' => 5,               // usually = ID of row in table
-    'filepath' => '/',           // any path beginning and ending in /
-    'filename' => 'pannot.pdf'); // any filename
+    'component' => $component,     // usually = table name
+    'filearea' => $filearea,     // usually = table name
+    'itemid' => $itemid,  // usually = ID of row in table   
+    'filepath' => $filepath,           // any path beginning and ending in /
+    'filename' => $filename); // any filename   
 
-// Create file containing text 'hello world'
-$fs->create_file_from_pathname($fileinfo, "./test4.pdf");
+// $hash = sha1("/$contextID/$component/$filearea/$itemid".$filepath.$filename);
+// var_dump($hash);
+
+// Create file 
+// TODO :: check if exists
+$doesExists = $fs->file_exists($contextID, $component, $filearea, $itemid, $filepath, $filename);
+if($doesExists === true)
+{
+    $storedfile = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
+    $storedfile->delete();
+    $fs->create_file_from_pathname($fileinfo, $temppath);
+
+    // // $filerecord = new stdClass();
+    // $fs->synchronise_stored_file_from_file($storedfile, $temppath, $fileinfo);
+}
+else
+{
+    $fs->create_file_from_pathname($fileinfo, $temppath);
+}
+// update_references_to_storedfile
 
 
 ?>

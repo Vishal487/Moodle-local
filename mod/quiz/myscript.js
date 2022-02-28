@@ -1,4 +1,4 @@
-var pdf = new PDFAnnotate("pdf-container", filename, {
+var pdf = new PDFAnnotate("pdf-container", fileurl, {
   onPageUpdated(page, oldData, newData) {
     console.log(page, oldData, newData);
   },

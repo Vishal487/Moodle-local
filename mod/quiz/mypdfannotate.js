@@ -247,7 +247,8 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 					alert("not able to send file");
 				}
 			}
-			xhr.open( 'post', 'upload.php?contextID='+contextID, true ); //Post to php Script to save to server
+			params = 'contextID='+contextID + '&attemptID='+attemptID + '&filename='+filename;
+			xhr.open( 'post', 'upload.php?'+params, true ); //Post to php Script to save to server
 			xhr.send(data);
 		}
 

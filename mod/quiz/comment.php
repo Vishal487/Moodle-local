@@ -122,21 +122,82 @@ $options = $attemptobj->get_display_options(true);
 $files = $qa->get_last_qt_files('attachments', $options->context->id);
 // var_dump($files);
 $fileurl = "";
+/**
+ * TODO :: if annotated file exists in the DB, 
+ * then $fileurl should point to that.
+ */
+
 foreach ($files as $file) {
     $out = $qa->get_response_file_url($file);
     $url = (explode("?", $out))[0];
     $fileurl = $url;
+    // var_dump($url);
 }
 
-// var_dump($options->context->id);
+$attemptid = $attemptobj->get_attemptid();
+$contextid = $options->context->id;
+$filename = end(explode("/", $fileurl));
+$filename = str_replace('%20', '', $filename);   // replace whitespaces
+$filename = str_replace('%28', '(', $filename); // replace (
+$filename = str_replace('%29', ')', $filename); // replace )
+// var_dump($attemptobj->get_attemptid());
+// var_dump($qa->get_usage_id());
+$contextID = $options->context->id;
+$component = 'question';
+$filearea = 'response_attachments';
+$filepath = '/';
+$itemid = $attemptobj->get_attemptid();
+
+$fs = get_file_storage();
+var_dump($contextID);
+var_dump($component);
+var_dump($filearea);
+var_dump($itemid);
+var_dump($filepath);
+var_dump($filename);
+$doesExists = $fs->file_exists($contextID, $component, $filearea, $itemid, $filepath, $filename);
+// var_dump($doesExists);
+if($doesExists === true)
+{
+    $file = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
+    $url1 = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
+    // echo $url;
+    //http://localhost/moodle/pluginfile.php/53/question/response_attachments/13/1/42/Mess_Timings.pdf
+    $file = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
+    $temp = file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
+        $file->get_contextid(),
+        $file->get_component(),
+        $file->get_filearea(),
+        $qa->get_usage_id(),
+        $qa->get_slot(),
+        $file->get_itemid())) .
+        $file->get_filepath() . $file->get_filename(), true);
+    
+    var_dump($temp);
+    //http://localhost/moodle/pluginfile.php/53/question/response_attachments/13/1/11/Mess_Timings.pdf?forcedownload=1
+    //http://localhost/moodle/pluginfile.php/53/question/response_feedback_annotation/13/1/11/Mess_Timings.pdf
+    $url1 = (explode("?", $temp))[0];
+    $fileurl = $url1;
+}
+else
+{
+    var_dump($doesExists);
+    echo "File doesn't exist\n";
+}
 
 // $filename = "http://localhost/moodle/pluginfile.php/60/question/response_attachments/35/1/139/intro.pdf";
-$filename = $fileurl;
+// $fileurl = "http://localhost/moodle/pluginfile.php/60/question/response_feedback_annotation/35/1/25/pannot.pdf";
+
 include "./myindex.html";
 
 ?>
-<script type="text/javascript">var filename = "<?= $filename ?>";</script>
-<script type="text/javascript">var contextID = "<?= $options->context->id ?>";</script>
+<script type="text/javascript">
+    var fileurl = "<?= $fileurl ?>"
+    var contextID = "<?= $contextid ?>";
+    var attemptID = "<?= $attemptid ?>";
+    var filename = "<?= $filename ?>"; 
+</script>
+
 <script type="text/javascript" src="./myscript.js"></script>
 
 <div>
