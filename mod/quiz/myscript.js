@@ -1,3 +1,7 @@
+/**
+ * @updatedby Tausif Iqbal and Vishal Rao
+ */
+// fileurl has been assigned its correct value in comment.php file
 var pdf = new PDFAnnotate("pdf-container", fileurl, {
   onPageUpdated(page, oldData, newData) {
     console.log(page, oldData, newData);
@@ -19,31 +23,31 @@ function changeActiveTool(event) {
 }
 
 function enableSelector(event) {
-    event.preventDefault();
+    event.preventDefault();    // changes made
     changeActiveTool(event);
     pdf.enableSelector();
-    return false;
+    return false;    // changes made
 }
 
 function enablePencil(event) {
-    event.preventDefault();
+    event.preventDefault();    // changes made
     changeActiveTool(event);
     pdf.enablePencil();
-    return false;
+    return false;    // changes made
 }
 
 function enableAddText(event) {
-    event.preventDefault();
+    event.preventDefault();    // changes made
     changeActiveTool(event);
     pdf.enableAddText();
-    return false;
+    return false;    // changes made
 }
 
 
 function savePDF(event) {
-    event.preventDefault();
+    event.preventDefault();    // changes made
     pdf.savePdf('sample.pdf'); // save with given file name
-    return false;
+    return false;    // changes made
 }
 
 $(function () {

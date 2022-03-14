@@ -1,18 +1,22 @@
 <?php
 
 /**
+ * @author Tausif Iqbal, Vishal Rao
  * This page saves annotated pdf to database.
+ * 
+ * It gets the file data from JavaScript through POST request.
+ * Then save it temporarily in this directory.
+ * Then create new file in databse using this temporary file.
  */
 
 require_once('../../config.php');
 require_once('locallib.php');
 
+// get the annotated data from JavaScript
 if(!empty($_FILES['data'])) 
 {
-    // PDF is located at $_FILES['data']['tmp_name']
-    // rename(...) it or send via email etc.
     $data = file_get_contents($_FILES['data']['tmp_name']);
-    $fname = "test4.pdf"; // name the file
+    $fname = "temp.pdf"; // name the file
     $file = fopen("./" .$fname, 'w'); // open the file path
     fwrite($file, $data); //save data
     fclose($file);
@@ -22,47 +26,33 @@ else
     throw new Exception("no data");
 }
 
-$contextID = $_REQUEST['contextID'];
-$attemptID = $_REQUEST['attemptID'];
+$contextid = $_REQUEST['contextid'];
+$attemptid = $_REQUEST['attemptid'];
 $filename = $_REQUEST['filename'];
-
 $component = 'question';
 $filearea = 'response_attachments';
 $filepath = '/';
-$itemid = $attemptID;
-$temppath = "./test4.pdf";
+$itemid = $attemptid;
+
+$temppath = './' . $fname;
 
 $fs = get_file_storage();
-
 // Prepare file record object
 $fileinfo = array(
-    'contextid' => $contextID, // ID of context
-    'component' => $component,     // usually = table name
-    'filearea' => $filearea,     // usually = table name
-    'itemid' => $itemid,  // usually = ID of row in table   
-    'filepath' => $filepath,           // any path beginning and ending in /
-    'filename' => $filename); // any filename   
+    'contextid' => $contextid,
+    'component' => $component,
+    'filearea' => $filearea,
+    'itemid' => $itemid,
+    'filepath' => $filepath,
+    'filename' => $filename);
 
-// $hash = sha1("/$contextID/$component/$filearea/$itemid".$filepath.$filename);
-// var_dump($hash);
-
-// Create file 
-// TODO :: check if exists
-$doesExists = $fs->file_exists($contextID, $component, $filearea, $itemid, $filepath, $filename);
+// check if file already exists, then first delete it.
+$doesExists = $fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename);
 if($doesExists === true)
 {
-    $storedfile = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
+    $storedfile = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
     $storedfile->delete();
-    $fs->create_file_from_pathname($fileinfo, $temppath);
-
-    // // $filerecord = new stdClass();
-    // $fs->synchronise_stored_file_from_file($storedfile, $temppath, $fileinfo);
 }
-else
-{
-    $fs->create_file_from_pathname($fileinfo, $temppath);
-}
-// update_references_to_storedfile
-
-
+// finally save the file (creating a new file)
+$fs->create_file_from_pathname($fileinfo, $temppath);
 ?>

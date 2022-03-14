@@ -114,57 +114,42 @@ echo '<form method="post" class="mform" id="manualgradingform" action="' .
         $CFG->wwwroot . '/mod/quiz/comment.php">';
 echo $attemptobj->render_question_for_commenting($slot);
 
-// var_dump($attemptobj);
+// Tausif Iqbal, Vishal Rao works start here...
+// we need $qa and $options to get all files submitted by student
 $qa = $attemptobj->get_question_attempt($slot);
-// var_dump($qa);
 $options = $attemptobj->get_display_options(true);
-// var_dump($options);
 $files = $qa->get_last_qt_files('attachments', $options->context->id);
-// var_dump($files);
+// get the pdf url 
+// note that, at the end of for loop, $fileurl will point to last file in the array
+// hence only last file will be rendered
 $fileurl = "";
-/**
- * TODO :: if annotated file exists in the DB, 
- * then $fileurl should point to that.
- */
-
 foreach ($files as $file) {
     $out = $qa->get_response_file_url($file);
+    // remove ?forcedownload=1 from the end of the url
     $url = (explode("?", $out))[0];
     $fileurl = $url;
-    // var_dump($url);
 }
 
+// variable required to check if annotated file already exists 
+// if exists, then render this file only (i.e. update the $fileurl)
 $attemptid = $attemptobj->get_attemptid();
 $contextid = $options->context->id;
 $filename = end(explode("/", $fileurl));
-$filename = str_replace('%20', '', $filename);   // replace whitespaces
-$filename = str_replace('%28', '(', $filename); // replace (
-$filename = str_replace('%29', ')', $filename); // replace )
-// var_dump($attemptobj->get_attemptid());
-// var_dump($qa->get_usage_id());
-$contextID = $options->context->id;
+$filename = urldecode($filename);
 $component = 'question';
 $filearea = 'response_attachments';
 $filepath = '/';
 $itemid = $attemptobj->get_attemptid();
 
 $fs = get_file_storage();
-var_dump($contextID);
-var_dump($component);
-var_dump($filearea);
-var_dump($itemid);
-var_dump($filepath);
-var_dump($filename);
-$doesExists = $fs->file_exists($contextID, $component, $filearea, $itemid, $filepath, $filename);
-// var_dump($doesExists);
-if($doesExists === true)
+// check if the pdf exists or not in database
+$doesExists = $fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename);
+if($doesExists === true)   // if exists then update $fileurl to the url of this file
 {
-    $file = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
-    $url1 = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
-    // echo $url;
-    //http://localhost/moodle/pluginfile.php/53/question/response_attachments/13/1/42/Mess_Timings.pdf
-    $file = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
-    $temp = file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
+    // the file object
+    $file = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
+    // create url of this file
+    $url = file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
         $file->get_contextid(),
         $file->get_component(),
         $file->get_filearea(),
@@ -172,33 +157,27 @@ if($doesExists === true)
         $qa->get_slot(),
         $file->get_itemid())) .
         $file->get_filepath() . $file->get_filename(), true);
-    
-    var_dump($temp);
-    //http://localhost/moodle/pluginfile.php/53/question/response_attachments/13/1/11/Mess_Timings.pdf?forcedownload=1
-    //http://localhost/moodle/pluginfile.php/53/question/response_feedback_annotation/13/1/11/Mess_Timings.pdf
-    $url1 = (explode("?", $temp))[0];
-    $fileurl = $url1;
+    // remove '"forcedownload=1' from the end of the url
+    $url = (explode("?", $url))[0];
+    // now update $fileurl
+    $fileurl = $url;
 }
-else
-{
-    var_dump($doesExists);
-    echo "File doesn't exist\n";
-}
-
-// $filename = "http://localhost/moodle/pluginfile.php/60/question/response_attachments/35/1/139/intro.pdf";
-// $fileurl = "http://localhost/moodle/pluginfile.php/60/question/response_feedback_annotation/35/1/25/pannot.pdf";
-
+// include the html file
 include "./myindex.html";
-
+// TODO conditional rendering based on $fileurl (if empty then don't render)
 ?>
+<!-- assigning php variable to javascript variable so that
+     we can use these in javascript file
+ -->
 <script type="text/javascript">
     var fileurl = "<?= $fileurl ?>"
-    var contextID = "<?= $contextid ?>";
-    var attemptID = "<?= $attemptid ?>";
+    var contextid = "<?= $contextid ?>";
+    var attemptid = "<?= $attemptid ?>";
     var filename = "<?= $filename ?>"; 
 </script>
-
 <script type="text/javascript" src="./myscript.js"></script>
+
+<!-- Tausif Iqbal, Vishal Rao works end here... -->
 
 <div>
     <input type="hidden" name="attempt" value="<?php echo $attemptobj->get_attemptid(); ?>" />

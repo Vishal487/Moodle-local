@@ -3,6 +3,9 @@
  * Author: Ravisha Heshan
  */
 
+// /**
+//  * @updatedby Tausif Iqbal and Vishal Rao
+//  */
  var PDFAnnotate = function(container_id, url, options = {}) {
 	this.number_of_pages = 0;
 	this.pages_rendered = 0;
@@ -113,7 +116,7 @@ PDFAnnotate.prototype.enableSelector = function () {
 	        fabricObj.isDrawingMode = false;
 	    });
 	}
-	return false;
+	return false;  // changes made
 }
 
 PDFAnnotate.prototype.enablePencil = function () {
@@ -124,7 +127,7 @@ PDFAnnotate.prototype.enablePencil = function () {
 	        fabricObj.isDrawingMode = true;
 	    });
 	}
-	return false;
+	return false;  // changes made
 }
 
 PDFAnnotate.prototype.enableAddText = function () {
@@ -135,7 +138,7 @@ PDFAnnotate.prototype.enableAddText = function () {
 	        fabricObj.isDrawingMode = false;
 	    });
 	}
-	return false;
+	return false;  // changes made
 }
 
 // PDFAnnotate.prototype.enableRectangle = function () {
@@ -232,12 +235,16 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			: undefined
 		);
 		if (index === inst.fabricObjects.length - 1) {
+			// this asks for the local file location and downloads file there.
 			// doc.save(fileName);
-		
+			// Tausif Iqbal, Vishal Rao works start here...
 			var pdf = doc.output('blob');
+
+			// now we'll create a form which will have the pdf data
 			var data = new FormData();
-			data.append("data", pdf);
-			console.log(contextID);
+			data.append("data", pdf); // add data to the form
+
+			// now we'll create a HTTP request to send the data
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function() {
 				if (this.readyState == 4 && this.status == 200) {
@@ -247,13 +254,15 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 					alert("not able to send file");
 				}
 			}
-			params = 'contextID='+contextID + '&attemptID='+attemptID + '&filename='+filename;
+			// a way to pass required parameters to the server
+			params = 'contextid='+contextid + '&attemptid='+attemptid + '&filename='+filename;
 			xhr.open( 'post', 'upload.php?'+params, true ); //Post to php Script to save to server
 			xhr.send(data);
+			// Tausif Iqbal, Vishal Rao works end here...
 		}
 
 	})
-	return false;
+	return false;   // changes made
 }
 
 // PDFAnnotate.prototype.setBrushSize = function (size) {
