@@ -43,10 +43,43 @@ function enableAddText(event) {
     return false;    // changes made
 }
 
+// function enableAddArrow(event) {
+//     event.preventDefault();
+//     changeActiveTool(event);
+//     pdf.enableAddArrow();
+//     return false;    // changes made
+// }
+
+function addImage(event) {
+    event.preventDefault();
+    pdf.addImageToCanvas();
+    return false;    // changes made
+}
+
+function enableRectangle(event) {
+    event.preventDefault();
+    changeActiveTool(event);
+    pdf.setColor('rgba(255, 0, 0, 0.3)');
+    pdf.setBorderColor('blue');
+    pdf.enableRectangle();
+    return false;    // changes made
+}
+
+function deleteSelectedObject(event) {
+    event.preventDefault();
+    pdf.deleteSelectedObject();
+    return false;    // changes made
+}
 
 function savePDF(event) {
     event.preventDefault();    // changes made
     pdf.savePdf('sample.pdf'); // save with given file name
+    return false;    // changes made
+}
+
+function clearPage(event) {
+    event.preventDefault();  // changes made
+    pdf.clearActivePage();
     return false;    // changes made
 }
 
@@ -56,6 +89,7 @@ $(function () {
         $(this).addClass('active');
         color = $(this).get(0).style.backgroundColor;
         pdf.setColor(color);
+        return false;
     });
 
     $('#brush-size').change(function () {

@@ -141,25 +141,26 @@ PDFAnnotate.prototype.enableAddText = function () {
 	return false;  // changes made
 }
 
-// PDFAnnotate.prototype.enableRectangle = function () {
-// 	var inst = this;
-// 	var fabricObj = inst.fabricObjects[inst.active_canvas];
-// 	inst.active_tool = 4;
-// 	if (inst.fabricObjects.length > 0) {
-// 		$.each(inst.fabricObjects, function (index, fabricObj) {
-// 			fabricObj.isDrawingMode = false;
-// 		});
-// 	}
+PDFAnnotate.prototype.enableRectangle = function () {
+	var inst = this;
+	var fabricObj = inst.fabricObjects[inst.active_canvas];
+	inst.active_tool = 4;
+	if (inst.fabricObjects.length > 0) {
+		$.each(inst.fabricObjects, function (index, fabricObj) {
+			fabricObj.isDrawingMode = false;
+		});
+	}
 
-// 	var rect = new fabric.Rect({
-// 		width: 100,
-// 		height: 100,
-// 		fill: inst.color,
-// 		stroke: inst.borderColor,
-// 		strokeSize: inst.borderSize
-// 	});
-// 	fabricObj.add(rect);
-// }
+	var rect = new fabric.Rect({
+		width: 100,
+		height: 100,
+		fill: inst.color,
+		stroke: inst.borderColor,
+		strokeSize: inst.borderSize
+	});
+	fabricObj.add(rect);
+	return false;
+}
 
 // PDFAnnotate.prototype.enableAddArrow = function () {
 // 	var inst = this;
@@ -172,41 +173,44 @@ PDFAnnotate.prototype.enableAddText = function () {
 // 	        });
 // 	    });
 // 	}
+// 	return false;
 // }
 
-// PDFAnnotate.prototype.addImageToCanvas = function () {
-// 	var inst = this;
-// 	var fabricObj = inst.fabricObjects[inst.active_canvas];
+PDFAnnotate.prototype.addImageToCanvas = function () {
+	var inst = this;
+	var fabricObj = inst.fabricObjects[inst.active_canvas];
 
-// 	if (fabricObj) {
-// 		var inputElement = document.createElement("input");
-// 		inputElement.type = 'file'
-// 		inputElement.accept = ".jpg,.jpeg,.png,.PNG,.JPG,.JPEG";
-// 		inputElement.onchange = function() {
-// 			var reader = new FileReader();
-// 			reader.addEventListener("load", function () {
-// 				inputElement.remove()
-// 				var image = new Image();
-// 				image.onload = function () {
-// 					fabricObj.add(new fabric.Image(image))
-// 				}
-// 				image.src = this.result;
-// 			}, false);
-// 			reader.readAsDataURL(inputElement.files[0]);
-// 		}
-// 		document.getElementsByTagName('body')[0].appendChild(inputElement)
-// 		inputElement.click()
-// 	} 
-// }
+	if (fabricObj) {
+		var inputElement = document.createElement("input");
+		inputElement.type = 'file'
+		inputElement.accept = ".jpg,.jpeg,.png,.PNG,.JPG,.JPEG";
+		inputElement.onchange = function() {
+			var reader = new FileReader();
+			reader.addEventListener("load", function () {
+				inputElement.remove()
+				var image = new Image();
+				image.onload = function () {
+					fabricObj.add(new fabric.Image(image))
+				}
+				image.src = this.result;
+			}, false);
+			reader.readAsDataURL(inputElement.files[0]);
+		}
+		document.getElementsByTagName('body')[0].appendChild(inputElement)
+		inputElement.click()
+	} 
+	return false;
+}
 
-// PDFAnnotate.prototype.deleteSelectedObject = function () {
-// 	var inst = this;
-// 	var activeObject = inst.fabricObjects[inst.active_canvas].getActiveObject();
-// 	if (activeObject)
-// 	{
-// 	    if (confirm('Are you sure ?')) inst.fabricObjects[inst.active_canvas].remove(activeObject);
-// 	}
-// }
+PDFAnnotate.prototype.deleteSelectedObject = function () {
+	var inst = this;
+	var activeObject = inst.fabricObjects[inst.active_canvas].getActiveObject();
+	if (activeObject)
+	{
+	    if (confirm('Are you sure ?')) inst.fabricObjects[inst.active_canvas].remove(activeObject);
+	}
+	return false;
+}
 
 PDFAnnotate.prototype.savePdf = function (fileName) {
 	var inst = this;
@@ -265,47 +269,54 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 	return false;   // changes made
 }
 
-// PDFAnnotate.prototype.setBrushSize = function (size) {
-// 	var inst = this;
-// 	$.each(inst.fabricObjects, function (index, fabricObj) {
-// 	    fabricObj.freeDrawingBrush.width = size;
-// 	});
-// }
+PDFAnnotate.prototype.setBrushSize = function (size) {
+	var inst = this;
+	$.each(inst.fabricObjects, function (index, fabricObj) {
+	    fabricObj.freeDrawingBrush.width = size;
+	});
+	return false;
+}
 
-// PDFAnnotate.prototype.setColor = function (color) {
-// 	var inst = this;
-// 	inst.color = color;
-// 	$.each(inst.fabricObjects, function (index, fabricObj) {
-//         fabricObj.freeDrawingBrush.color = color;
-//     });
-// }
+PDFAnnotate.prototype.setColor = function (color) {
+	var inst = this;
+	inst.color = color;
+	$.each(inst.fabricObjects, function (index, fabricObj) {
+        fabricObj.freeDrawingBrush.color = color;
+    });
+	return false;
+}
 
-// PDFAnnotate.prototype.setBorderColor = function (color) {
-// 	var inst = this;
-// 	inst.borderColor = color;
-// }
+PDFAnnotate.prototype.setBorderColor = function (color) {
+	var inst = this;
+	inst.borderColor = color;
+	return false;
+}
 
-// PDFAnnotate.prototype.setFontSize = function (size) {
-// 	this.font_size = size;
-// }
+PDFAnnotate.prototype.setFontSize = function (size) {
+	this.font_size = size;
+	return false;
+}
 
-// PDFAnnotate.prototype.setBorderSize = function (size) {
-// 	this.borderSize = size;
-// }
+PDFAnnotate.prototype.setBorderSize = function (size) {
+	this.borderSize = size;
+	return false;
+}
 
-// PDFAnnotate.prototype.clearActivePage = function () {
-// 	var inst = this;
-// 	var fabricObj = inst.fabricObjects[inst.active_canvas];
-// 	var bg = fabricObj.backgroundImage;
-// 	if (confirm('Are you sure?')) {
-// 	    fabricObj.clear();
-// 	    fabricObj.setBackgroundImage(bg, fabricObj.renderAll.bind(fabricObj));
-// 	}
-// }
+PDFAnnotate.prototype.clearActivePage = function () {
+	var inst = this;
+	var fabricObj = inst.fabricObjects[inst.active_canvas];
+	var bg = fabricObj.backgroundImage;
+	if (confirm('Are you sure?')) {
+	    fabricObj.clear();
+	    fabricObj.setBackgroundImage(bg, fabricObj.renderAll.bind(fabricObj));
+	}
+	return false;
+}
 
 // PDFAnnotate.prototype.serializePdf = function() {
 // 	var inst = this;
 // 	return JSON.stringify(inst.fabricObjects, null, 4);
+// 	return false;
 // }
 
 
