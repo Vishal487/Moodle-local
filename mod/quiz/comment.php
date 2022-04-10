@@ -110,73 +110,50 @@ if (data_submitted() && confirm_sesskey()) {
 echo $output->review_summary_table($summarydata, 0);
 
 // Print the comment form.
-echo '<form method="post" class="mform" id="manualgradingform" action="' .
+$comment_form = '<form method="post" class="mform" id="manualgradingform" action="' .
         $CFG->wwwroot . '/mod/quiz/comment.php">';
-echo $attemptobj->render_question_for_commenting($slot);
+$que_for_commenting = $attemptobj->render_question_for_commenting($slot);
 
 // Tausif Iqbal, Vishal Rao works start here...
 // we need $qa and $options to get all files submitted by student
 $qa = $attemptobj->get_question_attempt($slot);
 $options = $attemptobj->get_display_options(true);
 $files = $qa->get_last_qt_files('attachments', $options->context->id);
-// get the pdf url 
-// note that, at the end of for loop, $fileurl will point to last file in the array
-// hence only last file will be rendered
-$fileurl = "";
+
+// creating html form, it will send required data to annotator.php file
+$form = '<form action="./annotator.php" method="post">
+        <input type="hidden" value="' . $attemptid . '" name="attempt">
+        <input type="hidden" value="' . $slot . '" name="slot">';
+
+// the dropdown; it will be a part of above form; 
+// it will let teacher select which file to annotate
+$dropdown = '<select id="dropdown" name="fileno" class="custom-select">';
+$fileno = 0;  // file number (note that it starts with 1 not 0)
 foreach ($files as $file) {
+    $fileno = $fileno + 1;
     $out = $qa->get_response_file_url($file);
-    // remove ?forcedownload=1 from the end of the url
-    $url = (explode("?", $out))[0];
-    $fileurl = $url;
+    $url = (explode("?", $out))[0];       // remove ?forcedownload=1 from the end of the url
+    $filename = end(explode('/', $url));  // split based on "/" and take last element; this would be filename
+    $dropdown .= '<option value="' . $fileno . '">' . $filename . '</option>';
+}
+$dropdown .= '</select>';
+$form .= $dropdown;
+$form .= '<input type="submit" class="btn btn-primary" value="Annotate" style="margin: 5px;">
+       </form>';
+
+// rendering html form only when there are at least one file.
+if($fileno > 0)
+{   
+    $div = '<div style="margin-left: 126px">' . 
+            $form . 
+            '</div>';
+    echo $div;
 }
 
-// variable required to check if annotated file already exists 
-// if exists, then render this file only (i.e. update the $fileurl)
-$attemptid = $attemptobj->get_attemptid();
-$contextid = $options->context->id;
-$filename = end(explode("/", $fileurl));
-$filename = urldecode($filename);
-$component = 'question';
-$filearea = 'response_attachments';
-$filepath = '/';
-$itemid = $attemptobj->get_attemptid();
+echo $comment_form;
+echo $que_for_commenting;
 
-$fs = get_file_storage();
-// check if the pdf exists or not in database
-$doesExists = $fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename);
-if($doesExists === true)   // if exists then update $fileurl to the url of this file
-{
-    // the file object
-    $file = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
-    // create url of this file
-    $url = file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
-        $file->get_contextid(),
-        $file->get_component(),
-        $file->get_filearea(),
-        $qa->get_usage_id(),
-        $qa->get_slot(),
-        $file->get_itemid())) .
-        $file->get_filepath() . $file->get_filename(), true);
-    // remove '"forcedownload=1' from the end of the url
-    $url = (explode("?", $url))[0];
-    // now update $fileurl
-    $fileurl = $url;
-}
-// include the html file
-include "./myindex.html";
-// TODO conditional rendering based on $fileurl (if empty then don't render)
 ?>
-<!-- assigning php variable to javascript variable so that
-     we can use these in javascript file
- -->
-<script type="text/javascript">
-    var fileurl = "<?= $fileurl ?>"
-    var contextid = "<?= $contextid ?>";
-    var attemptid = "<?= $attemptid ?>";
-    var filename = "<?= $filename ?>"; 
-</script>
-<script type="text/javascript" src="./myscript.js"></script>
-
 <!-- Tausif Iqbal, Vishal Rao works end here... -->
 
 <div>

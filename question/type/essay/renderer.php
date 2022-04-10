@@ -101,7 +101,12 @@ class qtype_essay_renderer extends qtype_renderer {
         }
         $result .= html_writer::tag('div', $files, array('class' => 'attachments'));
         // changes made
-        $result .= html_writer::tag('div', $annotatedfiles, array('class' => 'attachments'));   // adding annotated file.
+        if(!empty($annotatedfiles))
+        {
+            $result .= '<hr style="height:1px;border:none;color:#333;background-color:#333;">';
+            $result .= '<p> <b> Corrected Documents </b> </p>';
+            $result .= html_writer::tag('div', $annotatedfiles, array('class' => 'attachments'));   // adding annotated file.
+        }
         $result .= html_writer::end_tag('div');
 
         return $result;
@@ -120,27 +125,31 @@ class qtype_essay_renderer extends qtype_renderer {
         $filearea = 'response_attachments';
         $filepath = '/';
         $itemid = $options->questionreviewlink->get_param('attempt');  // attempt_id
-        $filename = $this->get_filename($qa, $options);
-        $fileurl = "";
-        $fs = get_file_storage();
-        $doesExists = $fs->file_exists($contextID, $component, $filearea, $itemid, $filepath, $filename);
+        $filenames = $this->get_filenames($qa, $options);
+
         $annotatedfiles = "";
-        if($doesExists === true)
+        foreach($filenames as $filename)
         {
-            $file = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
-            $temp = file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
-                $file->get_contextid(),
-                $file->get_component(),
-                $file->get_filearea(),
-                $qa->get_usage_id(),
-                $qa->get_slot(),
-                $file->get_itemid())) .
-                $file->get_filepath() . $file->get_filename(), true);
-            $fileurl = $temp;
-        }
-        if(!empty($fileurl) && !empty($filename))
-        {
-            $annotatedfiles = '<p><a href="' . $fileurl . '"><img class="icon icon" alt="PDF document" title="PDF document" src="http://localhost/moodle/theme/image.php/boost/core/1644642657/f/pdf" />' . 'Feedback_' . $filename  . '</a></p>';
+            $fileurl = "";
+            $fs = get_file_storage();
+            $doesExists = $fs->file_exists($contextID, $component, $filearea, $itemid, $filepath, $filename);
+            if($doesExists === true)
+            {
+                $file = $fs->get_file($contextID, $component, $filearea, $itemid, $filepath, $filename);
+                $temp = file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
+                    $file->get_contextid(),
+                    $file->get_component(),
+                    $file->get_filearea(),
+                    $qa->get_usage_id(),
+                    $qa->get_slot(),
+                    $file->get_itemid())) .
+                    $file->get_filepath() . $file->get_filename(), true);
+                $fileurl = $temp;
+            }
+            if(!empty($fileurl) && !empty($filename))
+            {
+                $annotatedfiles .= '<p><a href="' . $fileurl . '"><img class="icon icon" alt="PDF document" title="PDF document" src="http://localhost/moodle/theme/image.php/boost/core/1644642657/f/pdf" />' . 'Feedback_' . $filename  . '</a></p>';
+            }
         }
         return $annotatedfiles;
     }
@@ -152,18 +161,18 @@ class qtype_essay_renderer extends qtype_renderer {
      * @param question_display_options $options controls what should and should
      *      not be displayed. Used to get the context.
      */
-    public function get_filename(question_attempt $qa, question_display_options $options) {
+    public function get_filenames(question_attempt $qa, question_display_options $options) {
         $files = $qa->get_last_qt_files('attachments', $options->context->id);
         $url1 = '';
+        $names = array();
         foreach ($files as $file) {
             $temp = $qa->get_response_file_url($file);
-            $url1 = $temp;
+            $url = (explode("?", $temp))[0];
+            $name = end((explode("/", $url)));
+            $name = urldecode($name);
+            $names[] = $name;
         }
-        $url1 = urldecode($url1);
-        $url1 = (explode("?", $temp))[0];
-        $name = end((explode("/", $url1)));
-        $name = urldecode($name);
-        return $name;
+        return $names;
     }
 
     /**
