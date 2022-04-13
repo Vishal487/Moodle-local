@@ -162,20 +162,6 @@ PDFAnnotate.prototype.enableRectangle = function () {
 	return false;
 }
 
-// PDFAnnotate.prototype.enableAddArrow = function () {
-// 	var inst = this;
-// 	inst.active_tool = 3;
-// 	if (inst.fabricObjects.length > 0) {
-// 	    $.each(inst.fabricObjects, function (index, fabricObj) {
-// 	        fabricObj.isDrawingMode = false;
-// 	        new Arrow(fabricObj, inst.color, function () {
-// 	            inst.active_tool = 0;
-// 	        });
-// 	    });
-// 	}
-// 	return false;
-// }
-
 PDFAnnotate.prototype.addImageToCanvas = function () {
 	var inst = this;
 	var fabricObj = inst.fabricObjects[inst.active_canvas];
@@ -239,9 +225,9 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			: undefined
 		);
 		if (index === inst.fabricObjects.length - 1) {
-			// this asks for the local file location and downloads file there.
-			// doc.save(fileName);
 			// Tausif Iqbal, Vishal Rao works start here...
+			// this asks for the local file location and downloads file there. But we don't want this to happen.
+			// doc.save(fileName);
 			var pdf = doc.output('blob');
 
 			// now we'll create a form which will have the pdf data
@@ -252,10 +238,10 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function() {
 				if (this.readyState == 4 && this.status == 200) {
-					alert("file has been sent");
+					alert("file has been saved");
 				}else{
 					console.log(this.readyState, this.status);
-					alert("not able to send file");
+					alert("not able to save file");
 				}
 			}
 			// a way to pass required parameters to the server
@@ -267,14 +253,6 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 
 	})
 	return false;   // changes made
-}
-
-PDFAnnotate.prototype.setBrushSize = function (size) {
-	var inst = this;
-	$.each(inst.fabricObjects, function (index, fabricObj) {
-	    fabricObj.freeDrawingBrush.width = size;
-	});
-	return false;
 }
 
 PDFAnnotate.prototype.setColor = function (color) {
@@ -296,38 +274,3 @@ PDFAnnotate.prototype.setFontSize = function (size) {
 	this.font_size = size;
 	return false;
 }
-
-PDFAnnotate.prototype.setBorderSize = function (size) {
-	this.borderSize = size;
-	return false;
-}
-
-PDFAnnotate.prototype.clearActivePage = function () {
-	var inst = this;
-	var fabricObj = inst.fabricObjects[inst.active_canvas];
-	var bg = fabricObj.backgroundImage;
-	if (confirm('Are you sure?')) {
-	    fabricObj.clear();
-	    fabricObj.setBackgroundImage(bg, fabricObj.renderAll.bind(fabricObj));
-	}
-	return false;
-}
-
-// PDFAnnotate.prototype.serializePdf = function() {
-// 	var inst = this;
-// 	return JSON.stringify(inst.fabricObjects, null, 4);
-// 	return false;
-// }
-
-
-
-// PDFAnnotate.prototype.loadFromJSON = function(jsonData) {
-// 	var inst = this;
-// 	$.each(inst.fabricObjects, function (index, fabricObj) {
-// 		if (jsonData.length > index) {
-// 			fabricObj.loadFromJSON(jsonData[index], function () {
-// 				inst.fabricObjectsData[index] = fabricObj.toJSON()
-// 			})
-// 		}
-// 	})
-// }

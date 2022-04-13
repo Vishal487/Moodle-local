@@ -20,10 +20,6 @@
 		<div class="tool">
 			<span>Annotator</span>
 		</div>
-		<!-- <div class="tool">
-			<label for="">Brush size</label>
-			<input type="number" class="form-control text-right" value="1" id="brush-size" max="50">
-		</div> -->
 		<div class="tool">
 			<label for="">Font size</label>
 			<select id="font-size" class="form-control">
@@ -47,12 +43,12 @@
 			<button class="color-tool" style="background-color: yellow;"></button>
 		</div>
 		<div class="tool">
-			<button class="tool-button active" onclick="return enableSelector(event)"><i class="fa fa-hand-paper-o"
-					title="Free Hand"></i></button>
+			<button class="tool-button active" onclick="return enableSelector(event)"><i class="fa fa-hand-pointer-o"
+					title="Select"></i></button>
 		</div>
 		<div class="tool">
 			<button class="tool-button" onclick="return enablePencil(event)"><i class="fa fa-pencil"
-					title="Pencil"></i></button>
+					title="Pen"></i></button>
 		</div>
 		<div class="tool">
 			<button class="tool-button" onclick="return enableAddText(event)"><i class="fa fa-font"
@@ -74,9 +70,6 @@
 			<button class="btn btn-danger btn-sm" onclick="return deleteSelectedObject(event)"><i
 					class="fa fa-trash"></i></button>
 		</div>
-		<!-- <div class="tool">
-			<button class="btn btn-danger btn-sm" onclick="return clearPage()">Clear Page</button>
-		</div> -->
 		<div class="tool">
 			<button class="btn btn-light btn-sm" onclick="return savePDF(event)"><i class="fa fa-save"></i>
 				Save</button>

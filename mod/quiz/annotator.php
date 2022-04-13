@@ -30,116 +30,38 @@ $attemptid = required_param('attempt', PARAM_INT);
 $slot = required_param('slot', PARAM_INT); // The question number in the attempt.
 $fileno = required_param('fileno', PARAM_INT);
 $cmid = optional_param('cmid', null, PARAM_INT);
-// var_dump($attemptid);
-// var_dump($slot);
-// var_dump($fileno);
+var_dump($attemptid);
+var_dump($slot);
+var_dump($fileno);
 
 $PAGE->set_url('/mod/quiz/annotator.php', array('attempt' => $attemptid, 'slot' => $slot, 'fileno' => $fileno));
 
 $attemptobj = quiz_create_attempt_handling_errors($attemptid, $cmid);
 $attemptobj->preload_all_attempt_step_users();
-// $student = $DB->get_record('user', array('id' => $attemptobj->get_userid()));
 
-// // Can only grade finished attempts.
-// if (!$attemptobj->is_finished()) {
-//     print_error('attemptclosed', 'quiz');
-// }
-
-// // Check login and permissions.
-// require_login($attemptobj->get_course(), false, $attemptobj->get_cm());
-// $attemptobj->require_capability('mod/quiz:grade');
-
-// // Print the page header.
-// $PAGE->set_pagelayout('popup');
-// $PAGE->set_title(get_string('manualgradequestion', 'quiz', array(
-//         'question' => format_string($attemptobj->get_question_name($slot)),
-//         'quiz' => format_string($attemptobj->get_quiz_name()), 'user' => fullname($student))));
-// $PAGE->set_heading($attemptobj->get_course()->fullname);
-// $output = $PAGE->get_renderer('mod_quiz');
-// echo $output->header();
-
-// // Prepare summary information about this question attempt.
-// $summarydata = array();
-
-// // Student name.
-// $userpicture = new user_picture($student);
-// $userpicture->courseid = $attemptobj->get_courseid();
-// $summarydata['user'] = array(
-//     'title'   => $userpicture,
-//     'content' => new action_link(new moodle_url('/user/view.php', array(
-//             'id' => $student->id, 'course' => $attemptobj->get_courseid())),
-//             fullname($student, true)),
-// );
-
-// // Quiz name.
-// $summarydata['quizname'] = array(
-//     'title'   => get_string('modulename', 'quiz'),
-//     'content' => format_string($attemptobj->get_quiz_name()),
-// );
-
-// // Question name.
-// $summarydata['questionname'] = array(
-//     'title'   => get_string('question', 'quiz'),
-//     'content' => $attemptobj->get_question_name($slot),
-// );
-
-// // Process any data that was submitted.
-// if (data_submitted() && confirm_sesskey()) {
-//     if (optional_param('submit', false, PARAM_BOOL) && question_engine::is_manual_grade_in_range($attemptobj->get_uniqueid(), $slot)) {
-//         $transaction = $DB->start_delegated_transaction();
-//         $attemptobj->process_submitted_actions(time());
-//         $transaction->allow_commit();
-
-//         // Log this action.
-//         $params = array(
-//             'objectid' => $attemptobj->get_question_attempt($slot)->get_question_id(),
-//             'courseid' => $attemptobj->get_courseid(),
-//             'context' => context_module::instance($attemptobj->get_cmid()),
-//             'other' => array(
-//                 'quizid' => $attemptobj->get_quizid(),
-//                 'attemptid' => $attemptobj->get_attemptid(),
-//                 'slot' => $slot
-//             )
-//         );
-//         $event = \mod_quiz\event\question_manually_graded::create($params);
-//         $event->trigger();
-
-//         echo $output->notification(get_string('changessaved'), 'notifysuccess');
-//         close_window(2, true);
-//         die;
-//     }
-// }
-
-// Print the comment form.
-// $comment_form = '<form method="post" class="mform" id="manualgradingform" action="' .
-//         $CFG->wwwroot . '/mod/quiz/comment.php">';
 $que_for_commenting = $attemptobj->render_question_for_commenting($slot);
 
-// Tausif Iqbal, Vishal Rao works start here...
 // we need $qa and $options to get all files submitted by student
 $qa = $attemptobj->get_question_attempt($slot);
 $options = $attemptobj->get_display_options(true);
+
+// get all the files
 $files = $qa->get_last_qt_files('attachments', $options->context->id);
-// get the pdf url 
-// note that, at the end of for loop, $fileurl will point to last file in the array
-// hence only last file will be rendered
+
+// select the "$fileno" file
 $fileurl = "";
 $currfileno = 0;
 foreach ($files as $file) {
     $currfileno = $currfileno + 1;
-    if($currfileno == $fileno)
+    if($currfileno == $fileno)              // this is the file we want
     {
         $out = $qa->get_response_file_url($file);
-        // remove ?forcedownload=1 from the end of the url
-        $url = (explode("?", $out))[0];
+        $url = (explode("?", $out))[0];     // remove ?forcedownload=1 from the end of the url
         $fileurl = $url;
+        $original_file = $file;             // storing it; in case the file is not PDF, we need the original file to create PDF from it
         break;
     }
-    // var_dump($fileurl);
 }
-
-// echo $comment_form;
-// echo $que_for_commenting;
 
 // variable required to check if annotated file already exists 
 // if exists, then render this file only (i.e. update the $fileurl)
@@ -152,8 +74,17 @@ $filearea = 'response_attachments';
 $filepath = '/';
 $itemid = $attemptobj->get_attemptid();
 
+// checking if file is not pdf
+$format = end(explode(".", $filename));
+$ispdf = true;
+if($format !== 'pdf')
+{
+    $ispdf = false;
+    $filename = (explode(".", $filename))[0] . "_topdf.pdf";
+}
+
 $fs = get_file_storage();
-// check if the pdf exists or not in database
+// check if the annotated pdf exists or not in database
 $doesExists = $fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename);
 if($doesExists === true)   // if exists then update $fileurl to the url of this file
 {
@@ -168,14 +99,62 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
         $qa->get_slot(),
         $file->get_itemid())) .
         $file->get_filepath() . $file->get_filename(), true);
-    // remove '"forcedownload=1' from the end of the url
-    $url = (explode("?", $url))[0];
-    // now update $fileurl
-    $fileurl = $url;
+    $url = (explode("?", $url))[0];     // remove '"forcedownload=1' from the end of the url
+    $fileurl = $url;                    // now update $fileurl
+} else if($ispdf == false)
+{
+    // annotated PDF doesn't exists and the original file is not a PDF file
+    // so we need to create PDF first and update fileurl to this PDF file
+
+    // copy non-pdf file to current working directory
+    $path = getcwd();
+    $original_file->copy_content_to($path . "/" . $original_file->get_filename());
+    
+    // get the mime-type of the original file
+    $mime = mime_content_type($original_file->get_filename());
+    $mime = (explode("/", $mime))[0];
+    
+    // convert that file into PDF, based on mime type (NOTE: this will be created in the cwd)
+    if($mime === "image")
+        $command = "convert " . $original_file->get_filename() . " temp2.pdf";
+    else
+        $command = "convert TEXT:" . $original_file->get_filename() . " temp2.pdf";
+
+    shell_exec($command);
+
+    // now delete that non-pdf file from current working directory; because we don't need it anymore
+    $command = "rm ./" . $original_file->get_filename();
+    shell_exec($command);
+
+    // create a PDF file in moodle database from the above created PDF file
+    $temppath = "./temp2.pdf";
+    $fileinfo = array(
+        'contextid' => $contextid,
+        'component' => $component,
+        'filearea' => $filearea,
+        'itemid' => $itemid,
+        'filepath' => $filepath,
+        'filename' => $filename);
+
+    $fs->create_file_from_pathname($fileinfo, $temppath);   // create file
+
+    // now update fileurl to this newly created PDF file
+    $file = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
+    // create url of this file
+    $url = file_encode_url(new moodle_url('/pluginfile.php'), '/' . implode('/', array(
+        $file->get_contextid(),
+        $file->get_component(),
+        $file->get_filearea(),
+        $qa->get_usage_id(),
+        $qa->get_slot(),
+        $file->get_itemid())) .
+        $file->get_filepath() . $file->get_filename(), true);
+    $url = (explode("?", $url))[0];     // remove '"forcedownload=1' from the end of the url
+    $fileurl = $url;                    // now update $fileurl
 }
-// include the html file
+
+// include the html file; It has all the features of annotator
 include "./myindex.html";
-// TODO conditional rendering based on $fileurl (if empty then don't render)
 ?>
 <!-- assigning php variable to javascript variable so that
      we can use these in javascript file
@@ -187,6 +166,3 @@ include "./myindex.html";
     var filename = "<?= $filename ?>"; 
 </script>
 <script type="text/javascript" src="./myscript.js"></script>
-
-<!-- Tausif Iqbal, Vishal Rao works end here... -->
-

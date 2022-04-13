@@ -4,10 +4,10 @@
 // fileurl has been assigned its correct value in comment.php file
 var pdf = new PDFAnnotate("pdf-container", fileurl, {
   onPageUpdated(page, oldData, newData) {
-    console.log(page, oldData, newData);
+    // console.log(page, oldData, newData);
   },
   ready() {
-    console.log("Plugin initialized successfully");
+    // console.log("Plugin initialized successfully");
   },
   scale: 1.5,
   pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
@@ -43,13 +43,6 @@ function enableAddText(event) {
     return false;    // changes made
 }
 
-// function enableAddArrow(event) {
-//     event.preventDefault();
-//     changeActiveTool(event);
-//     pdf.enableAddArrow();
-//     return false;    // changes made
-// }
-
 function addImage(event) {
     event.preventDefault();
     pdf.addImageToCanvas();
@@ -77,12 +70,6 @@ function savePDF(event) {
     return false;    // changes made
 }
 
-function clearPage(event) {
-    event.preventDefault();  // changes made
-    pdf.clearActivePage();
-    return false;    // changes made
-}
-
 $(function () {
     $('.color-tool').click(function () {
         $('.color-tool.active').removeClass('active');
@@ -90,11 +77,6 @@ $(function () {
         color = $(this).get(0).style.backgroundColor;
         pdf.setColor(color);
         return false;
-    });
-
-    $('#brush-size').change(function () {
-        var width = $(this).val();
-        pdf.setBrushSize(width);
     });
 
     $('#font-size').change(function () {

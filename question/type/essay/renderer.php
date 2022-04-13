@@ -170,6 +170,12 @@ class qtype_essay_renderer extends qtype_renderer {
             $url = (explode("?", $temp))[0];
             $name = end((explode("/", $url)));
             $name = urldecode($name);
+            // check if format is not PDF
+            // then change the filename as originalFileName_topdf.pdf
+            if(end(explode('.', $name)) != "pdf")
+            {
+                $name = (explode('.', $name))[0] . "_topdf.pdf";
+            }
             $names[] = $name;
         }
         return $names;
