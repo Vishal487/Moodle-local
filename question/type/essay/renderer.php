@@ -174,7 +174,7 @@ class qtype_essay_renderer extends qtype_renderer {
             // then change the filename as originalFileName_topdf.pdf
             if(end(explode('.', $name)) != "pdf")
             {
-                $name = (explode('.', $name))[0] . "_topdf.pdf";
+                $name = (explode('.', $name))[0] . "_" . end(explode('.', $name)) . "_topdf.pdf";
             }
             $names[] = $name;
         }

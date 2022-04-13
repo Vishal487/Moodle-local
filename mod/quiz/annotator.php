@@ -80,7 +80,7 @@ $ispdf = true;
 if($format !== 'pdf')
 {
     $ispdf = false;
-    $filename = (explode(".", $filename))[0] . "_topdf.pdf";
+    $filename = (explode(".", $filename))[0] . "_" . $format . "_topdf.pdf";
 }
 
 $fs = get_file_storage();
