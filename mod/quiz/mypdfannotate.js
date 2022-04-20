@@ -200,7 +200,7 @@ PDFAnnotate.prototype.deleteSelectedObject = function () {
 
 PDFAnnotate.prototype.savePdf = function (fileName) {
 	var inst = this;
-	var doc = new jspdf.jsPDF();
+	var doc = new jspdf.jsPDF('p', 'pt', 'a4', true);
 	if (typeof fileName === 'undefined') {
 		fileName = `${new Date().getTime()}.pdf`;
 	}

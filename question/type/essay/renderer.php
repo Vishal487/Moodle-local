@@ -163,18 +163,20 @@ class qtype_essay_renderer extends qtype_renderer {
      */
     public function get_filenames(question_attempt $qa, question_display_options $options) {
         $files = $qa->get_last_qt_files('attachments', $options->context->id);
-        $url1 = '';
+        $slot = $qa->get_slot();
         $names = array();
         foreach ($files as $file) {
             $temp = $qa->get_response_file_url($file);
             $url = (explode("?", $temp))[0];
             $name = end((explode("/", $url)));
             $name = urldecode($name);
-            // check if format is not PDF
-            // then change the filename as originalFileName_topdf.pdf
-            if(end(explode('.', $name)) != "pdf")
+            // adding slot at the end of filename, similar to annotator.php
+            $name = (explode(".", $name))[0] . "_" . $slot . "." . end(explode(".", $name));
+            // check if format is not PDF, then change the filename as originalFileName_topdf.pdf
+            $format = end(explode('.', $name));
+            if($format != "pdf")
             {
-                $name = (explode('.', $name))[0] . "_" . end(explode('.', $name)) . "_topdf.pdf";
+                $name = (explode('.', $name))[0] . "_" . $format . "_topdf.pdf";
             }
             $names[] = $name;
         }

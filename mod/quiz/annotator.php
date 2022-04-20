@@ -74,6 +74,12 @@ $filearea = 'response_attachments';
 $filepath = '/';
 $itemid = $attemptobj->get_attemptid();
 
+// adding slot at the end of filename to keep it unique 
+// this is required because a student can submit file of same name 
+// in two different question of the same quiz.
+// e.g. ABC.pdf ==> ABC_1.pdf, if slot = 1
+$filename = (explode(".", $filename))[0] . "_" . $slot . "." . end(explode(".", $filename));
+
 // checking if file is not pdf
 $format = end(explode(".", $filename));
 $ispdf = true;

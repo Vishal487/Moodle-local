@@ -10,7 +10,7 @@ var pdf = new PDFAnnotate("pdf-container", fileurl, {
     // console.log("Plugin initialized successfully");
   },
   scale: 1.5,
-  pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
+  pageImageCompression: "FAST", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
 });
 
 function changeActiveTool(event) {
