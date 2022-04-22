@@ -170,13 +170,18 @@ class qtype_essay_renderer extends qtype_renderer {
             $url = (explode("?", $temp))[0];
             $name = end((explode("/", $url)));
             $name = urldecode($name);
-            // adding slot at the end of filename, similar to annotator.php
-            $name = (explode(".", $name))[0] . "_" . $slot . "." . end(explode(".", $name));
-            // check if format is not PDF, then change the filename as originalFileName_topdf.pdf
-            $format = end(explode('.', $name));
+
+            // mimetype and format
+            $mime = $file->get_mimetype();
+            $mimetype = (explode("/", $mime))[0];
+            $format = end(explode("/", $mime));
+
+            // achanging filename, similar to annotator.php
+            $name = implode("_", explode(".", $name)) . "_" . $slot . "." . $format;
+            // check if format is not PDF, then change the filename as file_topdf.pdf
             if($format != "pdf")
             {
-                $name = (explode('.', $name))[0] . "_" . $format . "_topdf.pdf";
+                $name = (explode(".", $name))[0] . "_" . $format . "_topdf.pdf";
             }
             $names[] = $name;
         }

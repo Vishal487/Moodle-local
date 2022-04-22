@@ -53,12 +53,17 @@ $fileurl = "";
 $currfileno = 0;
 foreach ($files as $file) {
     $currfileno = $currfileno + 1;
+    var_dump($file->get_mimetype());
     if($currfileno == $fileno)              // this is the file we want
     {
         $out = $qa->get_response_file_url($file);
         $url = (explode("?", $out))[0];     // remove ?forcedownload=1 from the end of the url
         $fileurl = $url;
         $original_file = $file;             // storing it; in case the file is not PDF, we need the original file to create PDF from it
+        $mime = $file->get_mimetype();
+        $mimetype = (explode("/", $mime))[0];
+        $format = end(explode("/", $mime));
+        var_dump($mimetype, $format);
         break;
     }
 }
@@ -78,10 +83,11 @@ $itemid = $attemptobj->get_attemptid();
 // this is required because a student can submit file of same name 
 // in two different question of the same quiz.
 // e.g. ABC.pdf ==> ABC_1.pdf, if slot = 1
-$filename = (explode(".", $filename))[0] . "_" . $slot . "." . end(explode(".", $filename));
+// $filename = (explode(".", $filename))[0] . "_" . $slot . "." . end(explode(".", $filename));   // this will be problem if a student submit two file namely ABC and ABC.ABC 
+$filename = implode("_", explode(".", $filename)) . "_" . $slot . "." . $format;   // ABC.pdf ==> ABC_pdf_1.pdf, if slot=1
+// var_dump($filename);
 
 // checking if file is not pdf
-$format = end(explode(".", $filename));
 $ispdf = true;
 if($format !== 'pdf')
 {
@@ -116,13 +122,9 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     $path = getcwd();
     $original_file->copy_content_to($path . "/" . $original_file->get_filename());
     
-    // get the mime-type of the original file
-    $mime = mime_content_type($original_file->get_filename());
-    $mime = (explode("/", $mime))[0];
-    
     // convert that file into PDF, based on mime type (NOTE: this will be created in the cwd)
-    if($mime === "image")
-        $command = "convert " . $original_file->get_filename() . " temp2.pdf";
+    if($mimetype === "image")
+        $command = "convert " . $original_file->get_filename() . " -background white -page a5 temp2.pdf";
     else
         $command = "convert TEXT:" . $original_file->get_filename() . " temp2.pdf";
 
@@ -158,7 +160,7 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     $url = (explode("?", $url))[0];     // remove '"forcedownload=1' from the end of the url
     $fileurl = $url;                    // now update $fileurl
 }
-
+var_dump($fileurl);
 // include the html file; It has all the features of annotator
 include "./myindex.html";
 ?>

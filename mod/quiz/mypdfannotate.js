@@ -211,9 +211,7 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			doc.setPage(index + 1);
 		}
 		doc.addImage(
-			fabricObj.toDataURL({
-				format: 'png'
-			}), 
+			fabricObj.toDataURL('image/jpeg', 1.0), 
 			inst.pageImageCompression == "NONE" ? "PNG" : "JPEG", 
 			0, 
 			0,
@@ -237,6 +235,8 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			// now we'll create a HTTP request to send the data
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function() {
+				// document.getElementById('loader').style.display = "none";
+				// document.getElementById('pdf-container').style.display = "block";
 				if (this.readyState == 4 && this.status == 200) {
 					alert("file has been saved");
 				}else{

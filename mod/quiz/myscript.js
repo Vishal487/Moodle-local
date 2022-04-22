@@ -9,8 +9,8 @@ var pdf = new PDFAnnotate("pdf-container", fileurl, {
   ready() {
     // console.log("Plugin initialized successfully");
   },
-  scale: 1.5,
-  pageImageCompression: "FAST", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
+  scale: 0.9,
+  pageImageCompression: "SLOW", // FAST, MEDIUM, SLOW(Helps to control the new PDF file size)
 });
 
 function changeActiveTool(event) {
@@ -66,6 +66,8 @@ function deleteSelectedObject(event) {
 
 function savePDF(event) {
     event.preventDefault();    // changes made
+    // document.getElementById('loader').style.display = "block";
+    // document.getElementById('pdf-container').style.display = "none";
     pdf.savePdf('sample.pdf'); // save with given file name
     return false;    // changes made
 }
