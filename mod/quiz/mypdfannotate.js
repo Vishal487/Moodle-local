@@ -235,17 +235,15 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			// now we'll create a HTTP request to send the data
 			var xhr = new XMLHttpRequest();
 			xhr.onload = function() {
-				// document.getElementById('loader').style.display = "none";
-				// document.getElementById('pdf-container').style.display = "block";
 				if (this.readyState == 4 && this.status == 200) {
 					alert("file has been saved");
 				}else{
 					console.log(this.readyState, this.status);
-					alert("not able to save file");
+					alert("Not able to save file (File size too big)");
 				}
 			}
 			// a way to pass required parameters to the server
-			params = 'contextid='+contextid + '&attemptid='+attemptid + '&filename='+filename;
+			params = 'contextid='+contextid + '&attemptid='+attemptid + '&filename='+filename + '&maxbytes='+maxbytes;
 			xhr.open( 'post', 'upload.php?'+params, true ); //Post to php Script to save to server
 			xhr.send(data);
 			// Tausif Iqbal, Vishal Rao works end here...

@@ -63,7 +63,7 @@ foreach ($files as $file) {
         $mime = $file->get_mimetype();
         $mimetype = (explode("/", $mime))[0];
         $format = end(explode("/", $mime));
-        var_dump($mimetype, $format);
+        var_dump($mime, $mimetype, $format);
         break;
     }
 }
@@ -125,9 +125,11 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     // convert that file into PDF, based on mime type (NOTE: this will be created in the cwd)
     if($mimetype === "image")
         $command = "convert " . $original_file->get_filename() . " -background white -page a5 temp2.pdf";
-    else
-        $command = "convert TEXT:" . $original_file->get_filename() . " temp2.pdf";
-
+    else //if($format === "msword")
+        $command = "convert " . $original_file->get_filename() . " temp2.pdf";
+    // else
+        // $command = "convert TEXT:" . $original_file->get_filename() . " temp2.pdf";
+    var_dump($command);
     shell_exec($command);
 
     // now delete that non-pdf file from current working directory; because we don't need it anymore
@@ -160,7 +162,12 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     $url = (explode("?", $url))[0];     // remove '"forcedownload=1' from the end of the url
     $fileurl = $url;                    // now update $fileurl
 }
-var_dump($fileurl);
+// var_dump($fileurl);
+// max file size allowed in this course
+$cid = $attemptobj->get_courseid();
+$course = get_course($cid, false);
+$maxbytes = $course->maxbytes;
+var_dump($maxbytes);
 // include the html file; It has all the features of annotator
 include "./myindex.html";
 ?>
@@ -172,5 +179,6 @@ include "./myindex.html";
     var contextid = "<?= $contextid ?>";
     var attemptid = "<?= $attemptid ?>";
     var filename = "<?= $filename ?>"; 
+    var maxbytes = "<?= $maxbytes ?>";
 </script>
 <script type="text/javascript" src="./myscript.js"></script>

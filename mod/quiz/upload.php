@@ -12,6 +12,8 @@
 require_once('../../config.php');
 require_once('locallib.php');
 
+// var_dump(filesize("./temp.pdf"));
+
 // get the annotated data from JavaScript
 if(!empty($_FILES['data'])) 
 {
@@ -20,39 +22,52 @@ if(!empty($_FILES['data']))
     $file = fopen("./" .$fname, 'w'); // open the file path
     fwrite($file, $data); //save data
     fclose($file);
+    
+    // max file size allowed in the particular course
+    $maxbytes = (int)($_REQUEST['maxbytes']);    // in bytes
+
+    // curr file size
+    $fsize = strlen($data);   // in bytes
+
+    if($fsize < $maxbytes)
+    {
+        $contextid = $_REQUEST['contextid'];
+        $attemptid = $_REQUEST['attemptid'];
+        $filename = $_REQUEST['filename'];
+        $component = 'question';
+        $filearea = 'response_attachments';
+        $filepath = '/';
+        $itemid = $attemptid;
+
+        $temppath = './' . $fname;
+
+        $fs = get_file_storage();
+        // Prepare file record object
+        $fileinfo = array(
+            'contextid' => $contextid,
+            'component' => $component,
+            'filearea' => $filearea,
+            'itemid' => $itemid,
+            'filepath' => $filepath,
+            'filename' => $filename);
+
+        // check if file already exists, then first delete it.
+        $doesExists = $fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename);
+        if($doesExists === true)
+        {
+            $storedfile = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
+            $storedfile->delete();
+        }
+        // finally save the file (creating a new file)
+        $fs->create_file_from_pathname($fileinfo, $temppath);
+    }
+    else
+    {
+        throw new Exception("Too big file");
+    }
 } 
 else 
 {
-    throw new Exception("no data");
+    throw new Exception("No data to save");
 }
-
-$contextid = $_REQUEST['contextid'];
-$attemptid = $_REQUEST['attemptid'];
-$filename = $_REQUEST['filename'];
-$component = 'question';
-$filearea = 'response_attachments';
-$filepath = '/';
-$itemid = $attemptid;
-
-$temppath = './' . $fname;
-
-$fs = get_file_storage();
-// Prepare file record object
-$fileinfo = array(
-    'contextid' => $contextid,
-    'component' => $component,
-    'filearea' => $filearea,
-    'itemid' => $itemid,
-    'filepath' => $filepath,
-    'filename' => $filename);
-
-// check if file already exists, then first delete it.
-$doesExists = $fs->file_exists($contextid, $component, $filearea, $itemid, $filepath, $filename);
-if($doesExists === true)
-{
-    $storedfile = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
-    $storedfile->delete();
-}
-// finally save the file (creating a new file)
-$fs->create_file_from_pathname($fileinfo, $temppath);
 ?>
