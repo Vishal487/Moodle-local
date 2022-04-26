@@ -113,7 +113,7 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
         $file->get_filepath() . $file->get_filename(), true);
     $url = (explode("?", $url))[0];     // remove '"forcedownload=1' from the end of the url
     $fileurl = $url;                    // now update $fileurl
-} else if($ispdf == false)
+} else if($ispdf === false)
 {
     // annotated PDF doesn't exists and the original file is not a PDF file
     // so we need to create PDF first and update fileurl to this PDF file
@@ -121,30 +121,33 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     // copy non-pdf file to current working directory
     $path = getcwd();
     $original_file->copy_content_to($path . "/" . $original_file->get_filename());
-    
+    $tempfname = "temp3.pdf";
     // convert that file into PDF, based on mime type (NOTE: this will be created in the cwd)
-    if($mimetype === "image")
-        $command = "convert " . $original_file->get_filename() . " -background white -page a5 temp2.pdf";
-    else //if($format === "msword")
-        $command = "convert " . $original_file->get_filename() . " temp2.pdf";
+    if ($mimetype === "image") {
+        $command = "convert '" . $original_file->get_filename() . "' -background white -page a5 " . $tempfname;//temp3.pdf";
+    } else { //if($format === "msword")
+        $command = "convert '" . $original_file->get_filename() . "' " .$tempfname  ;// temp3.pdf";
+    }
     // else
-        // $command = "convert TEXT:" . $original_file->get_filename() . " temp2.pdf";
-    var_dump($command);
+    // $command = "convert TEXT:" . $original_file->get_filename() . " temp3.pdf";
+    // var_dump($command);
     shell_exec($command);
 
     // now delete that non-pdf file from current working directory; because we don't need it anymore
-    $command = "rm ./" . $original_file->get_filename();
+    $command = "rm '" . $original_file->get_filename() . "'";
     shell_exec($command);
 
     // create a PDF file in moodle database from the above created PDF file
-    $temppath = "./temp2.pdf";
+    // $temppath = "./temp3.pdf";
+    $temppath= "./".$tempfname;
     $fileinfo = array(
         'contextid' => $contextid,
         'component' => $component,
         'filearea' => $filearea,
         'itemid' => $itemid,
         'filepath' => $filepath,
-        'filename' => $filename);
+        'filename' => $filename
+    );
 
     $fs->create_file_from_pathname($fileinfo, $temppath);   // create file
 
