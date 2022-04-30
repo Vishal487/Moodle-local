@@ -122,16 +122,40 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     $path = getcwd();
     $original_file->copy_content_to($path . "/" . $original_file->get_filename());
     $tempfname = "temp3.pdf";
+    $command = "";
+    // var_dump($format);
+    // $myf = fopen("./foo.txt", "w");
+    // fwrite($myf, $format);
+    // fwrite($myf, "\n");
     // convert that file into PDF, based on mime type (NOTE: this will be created in the cwd)
     if ($mimetype === "image") {
         $command = "convert '" . $original_file->get_filename() . "' -background white -page a5 " . $tempfname;//temp3.pdf";
-    } else { //if($format === "msword")
-        $command = "convert '" . $original_file->get_filename() . "' " .$tempfname  ;// temp3.pdf";
+    } else {
+        $supported = array("plain", "txt", "cpp", "c", "py", "java", "sml", "php", "js", "html", "jsx", "xml", "css", "scss", "md");
+        foreach($supported as $supported_format)
+        {
+            // fwrite($myf, $supported_format);
+            // fwrite($myf, "\n");
+            if($format === $supported_format)
+            {
+                $command = "convert TEXT:'" . $original_file->get_filename() . "' " .$tempfname  ;// temp3.pdf";
+                break;
+            }
+        }
     }
     // else
     // $command = "convert TEXT:" . $original_file->get_filename() . " temp3.pdf";
     // var_dump($command);
-    shell_exec($command);
+    if($command != "")
+    {
+        shell_exec($command);
+    }
+    else
+    {
+        $command = "rm '" . $original_file->get_filename() . "'";
+        shell_exec($command);
+        throw new Exception("File not supported for annotation");
+    }
 
     // now delete that non-pdf file from current working directory; because we don't need it anymore
     $command = "rm '" . $original_file->get_filename() . "'";
