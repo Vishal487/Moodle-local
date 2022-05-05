@@ -76,23 +76,12 @@ function vpl_grade_item_update($instance, $grades=null) {
 
 /**
  * This actually updates the normal and completion calendar events.
- *
- * @param  stdClass $assign Assignment object (from DB).
- * @param  stdClass $course Course object.
- * @param  stdClass $cm Course module object.
+ * @author Neeraj Patil 
+ * @param  stdClass $mod_vpl vpl assignment object (from DB).
  */
-function vpl_prepare_update_events($vpl, $course = null, $cm = null) {
+function vpl_prepare_update_events($vpl) {
     global $DB;
     $vplinstance = $vpl->get_instance();
-    // if (!isset($course)) {
-    //     // Get course and course module for the assignment.
-    //     list($course, $cm) = get_course_and_cm_from_instance($vpl->id, 'vpl', $vpl->course);
-    // }
-    // Refresh the assignment's calendar events.
-    // $context = context_module::instance($cm->id);
-    // $assignment = new mod_vpl($context, $cm, $course);
-    // $assignment->update_calendar($cm->id);
-    // vpl_update_instance($vplinstance);
     // Refresh the calendar events also for the assignment overrides.
     $overrides = $DB->get_records('vpl_overrides', ['vplid' => $vplinstance->id], '',
                                   'id, groupid, userid, duedate, sortorder');
@@ -111,8 +100,8 @@ function vpl_prepare_update_events($vpl, $course = null, $cm = null) {
  * This function updates the events associated to the vpl.
  * If $override is non-zero, then it updates only the events
  * associated with the specified override.
- *
- * @param assign $assign the assign object.
+ * @author  Neeraj Patil
+ * @param vpl $mod_vpl vpl assignment object 
  * @param object $override (optional) limit to a specific override
  */
 function vpl_update_events($vpl, $override = null) {
@@ -794,8 +783,7 @@ function vpl_extend_settings_navigation(settings_navigation $settings, navigatio
             $parms = array ( 'id' => $cmid );
         }
 
-        // TODO :: add capabilities so that only authorised users can override
-        // adding a navigation node for group override
+        
         if (has_capability('mod/vpl:manageoverrides', $PAGE->cm->context)) {
             $groupoverrideparams = array('cmid' => $cmid, 'mode' => 'group'); 
             $url = new moodle_url( '/mod/vpl/overrides.php', $groupoverrideparams);

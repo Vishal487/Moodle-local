@@ -443,11 +443,14 @@ function xmldb_vpl_upgrade($oldversion = 0) {
         xmldb_vpl_upgrade_2021011014();
         upgrade_mod_savepoint(true, $vpl34, 'vpl');
     }
-    if ($oldversion < 2021052515) {
+    /**
+     * Added to create the grant extension functionality
+     * @author Neeraj Patil
+     */
+    if ($oldversion < 2022040513) {
         xmldb_vpl_upgrade_2021052515();
         // Vpl savepoint reached.
-        upgrade_mod_savepoint(true, 2021052515, 'vpl');
+        upgrade_mod_savepoint(true, 2022040513, 'vpl');
     }
     return true;
 }
-

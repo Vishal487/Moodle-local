@@ -218,6 +218,11 @@ function vpl_get_action_link($str, $link, $comp = 'mod_vpl') {
     return new action_menu_link_secondary($link, new pix_icon($str, '', 'mod_vpl'),  $stri18n);
 }
 
+/**
+ * Made some changes to implement the grant extension functionality similar to that in assignments.
+ * @author Neeraj Patil
+ */
+
 require_login();
 
 $id = required_param( 'id', PARAM_INT );
@@ -248,19 +253,22 @@ $cm = $vpl->get_course_module();
 $vpl->require_capability( VPL_GRADE_CAPABILITY );
 \mod_vpl\event\vpl_all_submissions_viewed::log( $vpl );
 
+// This form is added to implement the grant extension functionality
 $batchformparams = array('cm'=>$cm->id);
 $gradingbatchoperationsform = new mod_vpl_grading_batch_operations_form(null,$batchformparams,'post');
 
 if ($fromform = $gradingbatchoperationsform->get_data()) {
   //In this case you process validated data. $mform->get_data() returns data posted in form.
-  $overrideediturl = new moodle_url('/mod/vpl/overrideedit.php',array('cmid'=> $cm->id,'action'=>$fromform->action,'selecteduser'=>$fromform->selecteduser));
-  redirect($overrideediturl);
-  
+  // One can edit the mod_vpl_grading_batch_operations_form to add more functionalities such as lock submissions.
+    if($fromform->action == 'grantextension') {
+        $overrideediturl = new moodle_url('/mod/vpl/grantextension.php',array('cmid'=> $cm->id,'action'=>$fromform->action,'selecteduser'=>$fromform->selecteduser));
+        redirect($overrideediturl);
+    }
 } 
 
 $PAGE->requires->css( new moodle_url( '/mod/vpl/css/sh.css' ) );
 // This file is necessary to implement the grant extension functionality.
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/vpl/amd/src/index.js'));
+$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/vpl/amd/src/submissionlist.js'));
 // Print header.
 $vpl->print_header( get_string( 'submissionslist', VPL ) );
 $vpl->print_view_tabs( basename( __FILE__ ) );
@@ -754,4 +762,3 @@ if (count( $nextids )) {
     echo '</div>';
 }
 $vpl->print_footer();
-

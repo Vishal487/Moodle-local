@@ -18,6 +18,14 @@ document.onreadystatechange = () => {
         if (submit) {
         submit.onclick = function(event) {
             var checkedBoxes = document.querySelectorAll('input[type=checkbox][name=selecteduser]:checked');
+            if (checkedBoxes.length == 0) {
+              // eslint-disable-next-line no-alert
+              alert("Please select a user");
+              if (typeof event.cancelable !== 'boolean' || event.cancelable) {
+                event.preventDefault();
+              }
+              return;
+            }
             var val = [];
             for (let i = 0; i < checkedBoxes.length; i++) {
                 val.push(checkedBoxes[i].value);
@@ -29,6 +37,7 @@ document.onreadystatechange = () => {
                 if (typeof event.cancelable !== 'boolean' || event.cancelable) {
                     event.preventDefault();
                   }
+                  return;
             }
           };
         }

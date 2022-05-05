@@ -126,11 +126,6 @@ if (!$groupmode) {
     $overridelisturl->param('mode', 'user');
 }
 
-if($action == 'grantextension')
-{
-    $userlist = explode(',', $users);
-    $data->userid = $userlist;
-}
 // Setup the form.
 $mform = new vpl_override_form($url, $cm, $vpl, $context, $groupmode, $override);
 $mform->set_data($data);
@@ -198,61 +193,27 @@ if ($mform->is_cancelled()) {
         $dataobj = $fromform;
         $dataobj->userid=$userid;
         $DB->update_record('vpl_overrides', $dataobj);
-        // $cachekey = $groupmode ? "{$fromform->vplid}_g_{$fromform->groupid}" : "{$fromform->vplid}_u_{$fromform->userid}";
-        // cache::make('mod_vpl', 'overrides')->delete($cachekey);
-
-        // // Determine which override updated event to fire.
-        // $params['objectid'] = $override->id;
-        // if (!$groupmode) {
-        //     $params['relateduserid'] = $fromform->userid;
-        //     $event = \mod_assign\event\user_override_updated::create($params);
-        // } else {
-        //     $params['other']['groupid'] = $fromform->groupid;
-        //     $event = \mod_assign\event\group_override_updated::create($params);
-        // }
-
-        // Trigger the override updated event.
-    //    $event- >trigger();
     } else {
-        unset($fromform->id);
-        var_dump($fromform);
-        $dataobj = $fromform;
-        $dataobj->userid=$userid;
-        $fromform->id = $DB->insert_record('vpl_overrides', $dataobj);
-        if ($groupmode) {
-            $fromform->sortorder = 1;
-
-            $overridecountgroup = $DB->count_records('vpl_overrides',
-                array('userid' => null, 'vplid' => $vplinstance->id));
-            $overridecountall = $DB->count_records('vpl_overrides', array('vplid' => $vplinstance->id));
-            if ((!$overridecountgroup) && ($overridecountall)) { // No group overrides and there are user overrides.
+            unset($fromform->id);
+            $dataobj = $fromform;
+            $dataobj->userid=$userid;
+            $fromform->id = $DB->insert_record('vpl_overrides', $dataobj);
+            if ($groupmode) {
                 $fromform->sortorder = 1;
-            } else {
-                $fromform->sortorder = $overridecountgroup;
 
+                $overridecountgroup = $DB->count_records('vpl_overrides',
+                    array('userid' => null, 'vplid' => $vplinstance->id));
+                $overridecountall = $DB->count_records('vpl_overrides', array('vplid' => $vplinstance->id));
+                if ((!$overridecountgroup) && ($overridecountall)) { // No group overrides and there are user overrides.
+                    $fromform->sortorder = 1;
+                } else {
+                    $fromform->sortorder = $overridecountgroup;
+                }
+
+                $DB->update_record('vpl_overrides', $fromform);
+                vpl_reorder_group_overrides($vplinstance->id);
             }
-
-            $DB->update_record('vpl_overrides', $fromform);
-            vpl_reorder_group_overrides($vplinstance->id);
         }
-        // $cachekey = $groupmode ? "{$fromform->assignid}_g_{$fromform->groupid}" : "{$fromform->assignid}_u_{$fromform->userid}";
-        // cache::make('mod_vpl', 'overrides')->delete($cachekey);
-
-        // // Determine which override created event to fire.
-        // $params['objectid'] = $fromform->id;
-        // if (!$groupmode) {
-        //     $params['relateduserid'] = $fromform->userid;
-        //     $event = \mod_assign\event\user_override_created::create($params);
-        // } else {
-        //     $params['other']['groupid'] = $fromform->groupid;
-        //     $event = \mod_assign\event\group_override_created::create($params);
-        // }
-
-        // // Trigger the override created event.
-        // $event->trigger();
-    }
-
-    // assign_update_events($assign, $fromform);
     }
     vpl_prepare_update_events($vpl);
     if (!empty($fromform->submitbutton)) {

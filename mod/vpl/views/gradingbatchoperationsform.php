@@ -15,28 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * This file contains the forms to create and edit an instance of this module.
- *
+ *  VPL grading options form
  * @package    mod_vpl
  * @copyright  2022 Neeraj Patil
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 require_once("$CFG->libdir/formslib.php");
+class mod_vpl_grading_batch_operations_form extends moodleform
+{
 
-/**
- * VPL grading options form
- *
- * @package   mod_vpl
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * /**
- * Define this form - called by the parent constructor.
-*/
-
-class mod_vpl_grading_batch_operations_form extends moodleform {
-    
-    public function definition() {
+    public function definition()
+    {
         $mform = $this->_form;
         $instance = $this->_customdata;
 
@@ -45,12 +35,12 @@ class mod_vpl_grading_batch_operations_form extends moodleform {
 
         $mform->addElement('hidden', 'id', $instance['cm']);
         $mform->setType('id', PARAM_INT);
-        $mform->addElement('hidden', 'selecteduser', '', array('class'=>'selecteduser'));
+        $mform->addElement('hidden', 'selecteduser', '', array('class' => 'selecteduser'));
         $mform->setType('selecteduser', PARAM_SEQUENCE);
 
         $objs = array();
-        $objs[] =& $mform->createElement('select', 'action', get_string('chooseoperation', 'vpl'), $options);
-        $objs[] =& $mform->createElement('submit', 'submit', get_string('go'));
+        $objs[] = &$mform->createElement('select', 'action', get_string('chooseoperation', 'vpl'), $options);
+        $objs[] = &$mform->createElement('submit', 'submit', get_string('go'));
         $batchdescription = get_string('batchoperationsdescription', 'vpl');
         $mform->addElement('group', 'actionsgrp', $batchdescription, $objs, ' ', false);
     }

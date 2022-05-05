@@ -202,7 +202,10 @@ class mod_vpl {
         $this->requiredfgm = null;
         $this->executionfgm = null;
     }
-
+    /**
+     * This method is called to delete an override.
+     * @author Neeraj Patil 
+     */
     public function delete_override($overrideid) {
         global $CFG, $DB;
 
@@ -220,10 +223,8 @@ class mod_vpl {
         $conds = array('modulename' => 'vpl', 'instance' => $this->get_instance()->id);
         if (isset($override->userid)) {
             $conds['userid'] = $override->userid;
-            $cachekey = "{$cm->instance}_u_{$override->userid}";
         } else {
             $conds['groupid'] = $override->groupid;
-            $cachekey = "{$cm->instance}_g_{$override->groupid}";
         }
         $events = $DB->get_records('event', $conds);
         foreach ($events as $event) {
@@ -232,29 +233,6 @@ class mod_vpl {
         }
 
         $DB->delete_records('vpl_overrides', array('id' => $overrideid));
-        // TODO:: understand and use the below code
-        // cache::make('mod_assign', 'overrides')->delete($cachekey);
-
-        // Set the common parameters for one of the events we will be triggering.
-        // $params = array(
-        //     'objectid' => $override->id,
-        //     'context' => context_module::instance($cm->id),
-        //     'other' => array(
-        //         'assignid' => $override->assignid
-        //     )
-        // );
-        // // Determine which override deleted event to fire.
-        // if (!empty($override->userid)) {
-        //     $params['relateduserid'] = $override->userid;
-        //     $event = \mod_assign\event\user_override_deleted::create($params);
-        // } else {
-        //     $params['other']['groupid'] = $override->groupid;
-        //     $event = \mod_assign\event\group_override_deleted::create($params);
-        // }
-
-        // // Trigger the override deleted event.
-        // $event->add_record_snapshot('assign_overrides', $override);
-        // $event->trigger();
 
         return true;
     }
@@ -1063,6 +1041,10 @@ class mod_vpl {
      * @return bool
      *
      */
+    /**
+     * Modified this function so that it considers the granted extension as well.
+     * @author Neeraj Patil
+     */
     public function is_submission_period() {
         global $USER, $DB;
         $userid = $USER->id;
@@ -1708,6 +1690,10 @@ class mod_vpl {
     /**
      * Show vpl submission period
      */
+    /**
+     *  Made some changes to this function so that it can display the modified start date and due date.
+     * @author Neeraj Patil.
+     */
     public function print_submission_period($userid = 0) {
         global $DB;
         if ($this->instance->startdate == 0 && $this->instance->duedate == 0) {
@@ -1716,22 +1702,16 @@ class mod_vpl {
         $record = $DB->get_record('vpl_overrides',['userid'=>$userid]);
         if($record)
         {
+            $this->print_restriction( 'startdate', userdate( $this->instance->startdate ) );
+            $this->print_restriction( 'duedate', userdate( $this->instance->duedate ) );
             if($record->startdate)
             {
-                $this->print_restriction( 'startdate', userdate( $record->startdate ) );
-            }
-            else
-            {
-                $this->print_restriction( 'startdate', userdate( $this->instance->startdate ) );
+                $this->print_restriction( 'modifiedstartdate', userdate( $record->startdate ) );
             }
             if($record->duedate)
             {
-                $this->print_restriction( 'duedate', userdate( $record->duedate ) );
-            }
-            else
-            {
-                $this->print_restriction( 'duedate', userdate( $this->instance->duedate ) );
-            }
+                $this->print_restriction( 'modifiedduedate', userdate( $record->duedate ) );
+            }  
         }
         else{
             if ($this->instance->startdate) {
