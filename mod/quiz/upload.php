@@ -24,12 +24,31 @@ if(!empty($_FILES['data']))
     fclose($file);
     
     // max file size allowed in the particular course
-    $maxbytes = (int)($_REQUEST['maxbytes']);    // in bytes
+    // $maxbytes = (int)($_REQUEST['maxbytes']);    // in bytes
+    $max_upload = (int)(ini_get('upload_max_filesize'));
+    $max_post = (int)(ini_get('post_max_size'));
+    $memory_limit = (int)(ini_get('memory_limit'));
+    $max_mb = min($max_upload, $max_post, $memory_limit); // in mb
+    $maxbytes = $max_mb*1024*1024; // in bytes
 
     // curr file size
     $fsize = strlen($data);   // in bytes
 
-    if($fsize < $maxbytes)
+    // $file = fopen("./test.txt", "w");
+    // fwrite($file, $max_upload);
+    // fwrite($file, "\n");
+    // fwrite($file, $max_post);
+    // fwrite($file, "\n");
+    // fwrite($file, $memory_limit);
+    // fwrite($file, "\n");
+    // fwrite($file, $max_mb);
+    // fwrite($file, "\n");
+    // fwrite($file, $maxbytes);
+    // fwrite($file, "\n");
+    // fwrite($file, $fsize);
+    // fclose($file);
+
+    if(($fsize > 0) && ($maxbytes > 0) && ($fsize < $maxbytes))
     {
         $contextid = $_REQUEST['contextid'];
         $attemptid = $_REQUEST['attemptid'];
