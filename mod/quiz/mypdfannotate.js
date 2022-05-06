@@ -249,6 +249,8 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 						console.log(this.readyState, this.status);
 						alert("Not able to save file");
 					}
+					window.opener.location.reload();
+					window.close();
 				}
 				// a way to pass required parameters to the server
 				params = 'contextid='+contextid + '&attemptid='+attemptid + '&filename='+filename + '&maxbytes='+maxbytes;
@@ -258,11 +260,15 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			else
 			{
 				alert("File size too big to save");
+				window.opener.location.reload();
+				window.close();
 			}
 			// Tausif Iqbal, Vishal Rao works end here...
 		}
 
 	})
+	// window.opener.location.reload();
+	// window.close();
 	return false;   // changes made
 }
 

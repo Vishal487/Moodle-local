@@ -154,7 +154,9 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     {
         $command = "rm '" . $original_file->get_filename() . "'";
         shell_exec($command);
-        throw new Exception("File not supported for annotation");
+        $parent_url = new moodle_url('/mod/quiz/comment.php', array('attempt' => $attemptid, 'slot' => $slot));
+        throw new moodle_exception('importformatnotimplement', '', $parent_url);
+        // throw new Exception("File not supported for annotation");
     }
 
     // now delete that non-pdf file from current working directory; because we don't need it anymore
