@@ -191,10 +191,19 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
 }
 // var_dump($fileurl);
 // max file size allowed in this course
-$cid = $attemptobj->get_courseid();
-$course = get_course($cid, false);
-$maxbytes = $course->maxbytes;
+$max_upload = (int)(ini_get('upload_max_filesize'));
+$max_post = (int)(ini_get('post_max_size'));
+$memory_limit = (int)(ini_get('memory_limit'));
+$max_mb = min($max_upload, $max_post, $memory_limit); // in mb
+$maxbytes = $max_mb*1024*1024; // in bytes
+
+$mdl_maxbytes = $CFG->maxbytes;
+if($mdl_maxbytes > 0)
+{
+    $maxbytes = min($maxbytes, $mdl_maxbytes);
+}
 var_dump($maxbytes);
+
 // include the html file; It has all the features of annotator
 include "./myindex.html";
 ?>

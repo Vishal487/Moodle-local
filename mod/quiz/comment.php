@@ -144,6 +144,10 @@ $form .= $dropdown;
 $form .= '<input type="submit" class="btn btn-primary" value="Annotate" style="margin: 5px;">
        </form>';
 
+
+$mbyts = $CFG->maxbytes;
+var_dump($mbyts);
+
 // rendering html form only when there is at least one file.
 if($fileno > 0)
 {   

@@ -6,7 +6,7 @@
 // /**
 //  * @updatedby Tausif Iqbal and Vishal Rao
 //  */
- var PDFAnnotate = function(container_id, url, options = {}) {
+var PDFAnnotate = function(container_id, url, options = {}) {
 	this.number_of_pages = 0;
 	this.pages_rendered = 0;
 	this.active_tool = 1; // 1 - Free hand, 2 - Text, 3 - Arrow, 4 - Rectangle
@@ -226,26 +226,39 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 			// Tausif Iqbal, Vishal Rao works start here...
 			// this asks for the local file location and downloads file there. But we don't want this to happen.
 			// doc.save(fileName);
-			var pdf = doc.output('blob');
 
-			// now we'll create a form which will have the pdf data
-			var data = new FormData();
-			data.append("data", pdf); // add data to the form
+			var raw_data = doc.output(undefined);
+			var pdf_len = raw_data.length;
+			console.log("pdf_length: ", pdf_len);
+			console.log("maxbytes: ", maxbytes);
 
-			// now we'll create a HTTP request to send the data
-			var xhr = new XMLHttpRequest();
-			xhr.onload = function() {
-				if (this.readyState == 4 && this.status == 200) {
-					alert("file has been saved");
-				}else{
-					console.log(this.readyState, this.status);
-					alert("Not able to save file (File size too big)");
+			if(pdf_len < maxbytes)
+			{
+				var pdf = doc.output('blob');
+
+				// now we'll create a form which will have the pdf data
+				var data = new FormData();
+				data.append("data", pdf); // add data to the form
+
+				// now we'll create a HTTP request to send the data
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						alert("file has been saved");
+					}else{
+						console.log(this.readyState, this.status);
+						alert("Not able to save file");
+					}
 				}
+				// a way to pass required parameters to the server
+				params = 'contextid='+contextid + '&attemptid='+attemptid + '&filename='+filename + '&maxbytes='+maxbytes;
+				xhr.open( 'post', 'upload.php?'+params, true ); //Post to php Script to save to server
+				xhr.send(data);
 			}
-			// a way to pass required parameters to the server
-			params = 'contextid='+contextid + '&attemptid='+attemptid + '&filename='+filename + '&maxbytes='+maxbytes;
-			xhr.open( 'post', 'upload.php?'+params, true ); //Post to php Script to save to server
-			xhr.send(data);
+			else
+			{
+				alert("File size too big to save");
+			}
 			// Tausif Iqbal, Vishal Rao works end here...
 		}
 
