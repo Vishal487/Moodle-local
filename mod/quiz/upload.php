@@ -12,8 +12,6 @@
 require_once('../../config.php');
 require_once('locallib.php');
 
-// var_dump(filesize("./temp.pdf"));
-
 // get the annotated data from JavaScript
 if(!empty($_FILES['data'])) 
 {
@@ -24,7 +22,6 @@ if(!empty($_FILES['data']))
     fclose($file);
     
     // max file size allowed in the particular course
-    // $maxbytes = (int)($_REQUEST['maxbytes']);    // in bytes
     $max_upload = (int)(ini_get('upload_max_filesize'));
     $max_post = (int)(ini_get('post_max_size'));
     $memory_limit = (int)(ini_get('memory_limit'));
@@ -36,26 +33,12 @@ if(!empty($_FILES['data']))
     {
         $maxbytes = min($maxbytes, $mdl_maxbytes);
     }
-
     // curr file size
     $fsize = strlen($data);   // in bytes
 
-    $file = fopen("./test.txt", "w");
-    fwrite($file, $max_upload);
-    fwrite($file, "\n");
-    fwrite($file, $max_post);
-    fwrite($file, "\n");
-    fwrite($file, $memory_limit);
-    fwrite($file, "\n");
-    fwrite($file, $max_mb);
-    fwrite($file, "\n");
-    fwrite($file, $maxbytes);
-    fwrite($file, "\n");
-    fwrite($file, $fsize);
-    // fclose($file);
-
     if(($fsize > 0) && ($maxbytes > 0) && ($fsize < $maxbytes))
     {
+        // save into the database
         $contextid = $_REQUEST['contextid'];
         $attemptid = $_REQUEST['attemptid'];
         $filename = $_REQUEST['filename'];
@@ -100,16 +83,11 @@ if(!empty($_FILES['data']))
     }
     else
     {
-        fwrite($file, "inner-else");
         throw new Exception("Too big file");
     }
-    fclose($file);
 } 
 else 
 {
-    $file = fopen("./test.txt", "w");
-    fwrite($file, "outer-else");
-    fclose($file);
     throw new Exception("No data to save");
 }
 ?>

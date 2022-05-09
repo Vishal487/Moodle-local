@@ -66,8 +66,6 @@ function deleteSelectedObject(event) {
 
 function savePDF(event) {
     event.preventDefault();    // changes made
-    // document.getElementById('loader').style.display = "block";
-    // document.getElementById('pdf-container').style.display = "none";
     pdf.savePdf('sample.pdf'); // save with given file name
     return false;    // changes made
 }

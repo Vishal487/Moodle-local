@@ -111,6 +111,7 @@ echo $output->review_summary_table($summarydata, 0);
 
 // Tausif Iqbal, Vishal Rao works start here...
 // Print the comment form.
+// storing these into variable so that we can first print the dropdown and then all these questions for commenting
 $comment_form = '<form method="post" class="mform" id="manualgradingform" action="' .
         $CFG->wwwroot . '/mod/quiz/comment.php">';
 $que_for_commenting = $attemptobj->render_question_for_commenting($slot);
@@ -143,10 +144,6 @@ $dropdown .= '</select>';
 $form .= $dropdown;
 $form .= '<input type="submit" class="btn btn-primary" value="Annotate" style="margin: 5px;">
        </form>';
-
-
-$mbyts = $CFG->maxbytes;
-var_dump($mbyts);
 
 // rendering html form only when there is at least one file.
 if($fileno > 0)

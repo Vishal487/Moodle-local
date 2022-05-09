@@ -30,15 +30,10 @@ $attemptid = required_param('attempt', PARAM_INT);
 $slot = required_param('slot', PARAM_INT); // The question number in the attempt.
 $fileno = required_param('fileno', PARAM_INT);
 $cmid = optional_param('cmid', null, PARAM_INT);
-var_dump($attemptid);
-var_dump($slot);
-var_dump($fileno);
 
 $PAGE->set_url('/mod/quiz/annotator.php', array('attempt' => $attemptid, 'slot' => $slot, 'fileno' => $fileno));
 
 $attemptobj = quiz_create_attempt_handling_errors($attemptid, $cmid);
-$attemptobj->preload_all_attempt_step_users();
-
 $que_for_commenting = $attemptobj->render_question_for_commenting($slot);
 
 // we need $qa and $options to get all files submitted by student
@@ -53,7 +48,6 @@ $fileurl = "";
 $currfileno = 0;
 foreach ($files as $file) {
     $currfileno = $currfileno + 1;
-    var_dump($file->get_mimetype());
     if($currfileno == $fileno)              // this is the file we want
     {
         $out = $qa->get_response_file_url($file);
@@ -63,7 +57,6 @@ foreach ($files as $file) {
         $mime = $file->get_mimetype();
         $mimetype = (explode("/", $mime))[0];
         $format = end(explode("/", $mime));
-        var_dump($mime, $mimetype, $format);
         break;
     }
 }
@@ -82,10 +75,7 @@ $itemid = $attemptobj->get_attemptid();
 // adding slot at the end of filename to keep it unique 
 // this is required because a student can submit file of same name 
 // in two different question of the same quiz.
-// e.g. ABC.pdf ==> ABC_1.pdf, if slot = 1
-// $filename = (explode(".", $filename))[0] . "_" . $slot . "." . end(explode(".", $filename));   // this will be problem if a student submit two file namely ABC and ABC.ABC 
 $filename = implode("_", explode(".", $filename)) . "_" . $slot . "." . $format;   // ABC.pdf ==> ABC_pdf_1.pdf, if slot=1
-// var_dump($filename);
 
 // checking if file is not pdf
 $ispdf = true;
@@ -123,10 +113,6 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     $original_file->copy_content_to($path . "/" . $original_file->get_filename());
     $tempfname = "temp3.pdf";
     $command = "";
-    // var_dump($format);
-    // $myf = fopen("./foo.txt", "w");
-    // fwrite($myf, $format);
-    // fwrite($myf, "\n");
     // convert that file into PDF, based on mime type (NOTE: this will be created in the cwd)
     if ($mimetype === "image") {
         $command = "convert '" . $original_file->get_filename() . "' -background white -page a5 " . $tempfname;//temp3.pdf";
@@ -134,8 +120,6 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
         $supported = array("plain", "txt", "cpp", "c", "py", "java", "sml", "php", "js", "html", "jsx", "xml", "css", "scss", "md");
         foreach($supported as $supported_format)
         {
-            // fwrite($myf, $supported_format);
-            // fwrite($myf, "\n");
             if($format === $supported_format)
             {
                 $command = "convert TEXT:'" . $original_file->get_filename() . "' " .$tempfname  ;// temp3.pdf";
@@ -143,9 +127,7 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
             }
         }
     }
-    // else
-    // $command = "convert TEXT:" . $original_file->get_filename() . " temp3.pdf";
-    // var_dump($command);
+
     if($command != "")
     {
         shell_exec($command);
@@ -156,7 +138,6 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
         shell_exec($command);
         $parent_url = new moodle_url('/mod/quiz/comment.php', array('attempt' => $attemptid, 'slot' => $slot));
         throw new moodle_exception('importformatnotimplement', '', $parent_url);
-        // throw new Exception("File not supported for annotation");
     }
 
     // now delete that non-pdf file from current working directory; because we don't need it anymore
@@ -164,7 +145,6 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     shell_exec($command);
 
     // create a PDF file in moodle database from the above created PDF file
-    // $temppath = "./temp3.pdf";
     $temppath= "./".$tempfname;
     $fileinfo = array(
         'contextid' => $contextid,
@@ -191,7 +171,7 @@ if($doesExists === true)   // if exists then update $fileurl to the url of this 
     $url = (explode("?", $url))[0];     // remove '"forcedownload=1' from the end of the url
     $fileurl = $url;                    // now update $fileurl
 }
-// var_dump($fileurl);
+
 // max file size allowed in this course
 $max_upload = (int)(ini_get('upload_max_filesize'));
 $max_post = (int)(ini_get('post_max_size'));
@@ -204,7 +184,6 @@ if($mdl_maxbytes > 0)
 {
     $maxbytes = min($maxbytes, $mdl_maxbytes);
 }
-var_dump($maxbytes);
 
 // include the html file; It has all the features of annotator
 include "./myindex.html";

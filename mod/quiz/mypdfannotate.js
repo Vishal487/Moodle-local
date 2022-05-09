@@ -224,18 +224,12 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 		);
 		if (index === inst.fabricObjects.length - 1) {
 			// Tausif Iqbal, Vishal Rao works start here...
-			// this asks for the local file location and downloads file there. But we don't want this to happen.
-			// doc.save(fileName);
-
+			// checking size of annotated file
 			var raw_data = doc.output(undefined);
 			var pdf_len = raw_data.length;
-			console.log("pdf_length: ", pdf_len);
-			console.log("maxbytes: ", maxbytes);
-
 			if(pdf_len < maxbytes)
 			{
 				var pdf = doc.output('blob');
-
 				// now we'll create a form which will have the pdf data
 				var data = new FormData();
 				data.append("data", pdf); // add data to the form
@@ -244,9 +238,9 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 				var xhr = new XMLHttpRequest();
 				xhr.onload = function() {
 					if (this.readyState == 4 && this.status == 200) {
-						alert("file has been saved");
+						alert("File has been saved");
 					}else{
-						console.log(this.readyState, this.status);
+						// console.log(this.readyState, this.status);
 						alert("Not able to save file");
 					}
 					window.opener.location.reload();
@@ -267,8 +261,6 @@ PDFAnnotate.prototype.savePdf = function (fileName) {
 		}
 
 	})
-	// window.opener.location.reload();
-	// window.close();
 	return false;   // changes made
 }
 
